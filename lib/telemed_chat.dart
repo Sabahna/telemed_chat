@@ -1,7 +1,5 @@
 library telemed_chat;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export "package:videosdk/src/core/room/notification_data.dart";
+
+export "src/screens/one_to_one_meeting_screen.dart";
