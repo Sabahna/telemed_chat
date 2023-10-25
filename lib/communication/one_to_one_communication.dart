@@ -16,7 +16,10 @@ class OneToOneCommunication {
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
-        await _navigateOneToOneMeeting(context);
+        await _navigateOneToOneMeeting(
+          context,
+          updateRoom: _updateRoom,
+        );
       }
     } catch (error) {
       if (context.mounted) {
@@ -40,7 +43,10 @@ class OneToOneCommunication {
       if (context.mounted) {
         oneToOneCall.meetingId = meetingId;
 
-        await _navigateOneToOneMeeting(context);
+        await _navigateOneToOneMeeting(
+          context,
+          updateRoom: _updateRoom,
+        );
       }
     } else {
       if (context.mounted) {
@@ -53,7 +59,6 @@ class OneToOneCommunication {
     await _navigateOneToOneMeeting(
       context,
       justView: true,
-      updateRoom: _updateRoom,
     );
   }
 

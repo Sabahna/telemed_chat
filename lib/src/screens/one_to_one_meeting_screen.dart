@@ -103,7 +103,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     });
 
     // Join meeting
-    if (widget.justView) {
+    if (!widget.justView) {
       await room.join();
     }
   }
