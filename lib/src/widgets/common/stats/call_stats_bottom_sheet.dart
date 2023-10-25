@@ -23,7 +23,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
   @override
   void initState() {
     statsTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) => {updateStats()});
+        Timer.periodic(const Duration(seconds: 1), (_) => updateStats());
     super.initState();
     updateStats();
   }
@@ -52,7 +52,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                   color: score == null
                       ? black700
                       : score! > 7
-                          ? green
+                          ? Colors.red
                           : score! > 4
                               ? yellow
                               : red,

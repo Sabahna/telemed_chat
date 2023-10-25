@@ -8,18 +8,18 @@ class WaitingToJoin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Lottie.asset("assets/joining_lottie.json", width: 100),
+            Lottie.asset("assets/calling_lottie.json", width: 100),
             const VerticalSpacer(20),
             const Text(
-              "Creating a Room",
+              "Calling...",
               style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
+                fontSize: 25,
+                color: Color(0xff088395),
                 fontWeight: FontWeight.w500,
               ),
             ),

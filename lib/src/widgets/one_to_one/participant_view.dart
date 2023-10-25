@@ -23,6 +23,7 @@ class ParticipantView extends StatelessWidget {
   final bool isScreenShare;
   final double avatarTextSize;
   final Function() onStopScreenSharePressed;
+  final Color primaryColor = const Color(0xff088395);
 
   @override
   Widget build(BuildContext context) {
@@ -82,22 +83,34 @@ class ParticipantView extends StatelessWidget {
                         ],
                       ),
               ),
-        if (!isMicOn)
-          Positioned(
-            top: 35,
-            right: 8,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(30),
+        Positioned(
+          top: 40,
+          right: 12,
+          child: Column(
+            children: [
+              CallStats(participant: participant),
+              const SizedBox(
+                height: 10,
               ),
-              child: Icon(
-                Icons.mic_off,
-                size: avatarTextSize / 2,
+              AnimatedOpacity(
+                opacity: !isMicOn ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Icon(
+                    Icons.mic_off,
+                    size: avatarTextSize / 2,
+                    color: primaryColor,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
+        ),
         if (isScreenShare)
           Positioned(
             bottom: 35,
@@ -115,11 +128,6 @@ class ParticipantView extends StatelessWidget {
               ),
             ),
           ),
-        Positioned(
-          top: 35,
-          left: 4,
-          child: CallStats(participant: participant),
-        ),
       ],
     );
   }

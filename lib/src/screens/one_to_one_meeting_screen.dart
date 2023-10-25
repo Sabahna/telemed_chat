@@ -127,7 +127,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       },
                       child: Container(
                         width: double.infinity,
-                        color: Colors.green,
+                        color: Colors.red,
                         child: OneToOneMeetingContainer(meeting: meeting),
                       ),
                     ),
@@ -145,11 +145,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                     top: 35,
                     left: 15,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                       icon: const Icon(
                         Icons.arrow_back_ios_new,
                         size: 25,
-                        color: Colors.red,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -157,13 +159,14 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: AnimatedCrossFade(
-                      duration: const Duration(milliseconds: 1000),
-                      reverseDuration: const Duration(milliseconds: 1000),
+                      duration: const Duration(milliseconds: 400),
+                      reverseDuration: const Duration(milliseconds: 400),
                       crossFadeState: !fullScreen
                           ? CrossFadeState.showFirst
                           : CrossFadeState.showSecond,
                       secondChild: const SizedBox.shrink(),
                       firstChild: MeetingActionControl(
+                        name: widget.oneToOneCall.displayName,
                         isMicEnabled: audioStream != null,
                         isCamEnabled: videoStream != null,
                         isAudioSpeakerEnabled: currentOutputAudioDevice ==

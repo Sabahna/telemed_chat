@@ -14,6 +14,7 @@ class MeetingActionControl extends StatelessWidget {
     required this.onMicButtonPressed,
     required this.onCameraButtonPressed,
     required this.onAudioSpeakerButtonPressed,
+    required this.name,
     Key? key,
   }) : super(key: key);
 
@@ -28,96 +29,156 @@ class MeetingActionControl extends StatelessWidget {
   final void Function() onCameraButtonPressed;
   final void Function() onAudioSpeakerButtonPressed;
 
+  final String name;
+
+  final Color primaryColor = const Color(0xff088395);
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          GestureDetector(
-            onTap: onCallLeaveButtonPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red),
-                color: Colors.red,
+          TouchRippleEffect(
+            borderRadius: BorderRadius.circular(0),
+            rippleColor: Colors.white.withOpacity(0),
+            onTap: () {},
+            child: Column(
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                const Text(
+                  "10:00",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Mic Control
+              TouchRippleEffect(
+                borderRadius: BorderRadius.circular(200),
+                rippleColor: isMicEnabled ? primaryColor : Colors.white,
+                onTap: onMicButtonPressed,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(200),
+                    color: isMicEnabled ? primaryColor : Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    isMicEnabled ? Icons.mic : Icons.mic_off,
+                    size: 30,
+                    color: isMicEnabled ? Colors.white : primaryColor,
+                  ),
+                ),
               ),
-              padding: const EdgeInsets.all(8),
-              child: const Icon(
-                Icons.call_end,
-                size: 30,
-                color: Colors.white,
+
+              // Camera Control
+              TouchRippleEffect(
+                borderRadius: BorderRadius.circular(200),
+                rippleColor: primaryColor,
+                onTap: onCameraButtonPressed,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(200),
+                    color: isCamEnabled ? primaryColor : Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: isCamEnabled
+                      ? const Icon(
+                          Icons.videocam_rounded,
+                          size: 30,
+                          color: Colors.white,
+                        )
+                      : Icon(
+                          Icons.videocam_off_rounded,
+                          size: 30,
+                          color: primaryColor,
+                        ),
+                ),
+              ),
+
+              // Audio output Control
+              TouchRippleEffect(
+                borderRadius: BorderRadius.circular(200),
+                rippleColor:
+                    isAudioSpeakerEnabled ? primaryColor : Colors.white,
+                onTap: onAudioSpeakerButtonPressed,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(200),
+                    color: isAudioSpeakerEnabled ? primaryColor : Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    isAudioSpeakerEnabled
+                        ? CupertinoIcons.speaker_2_fill
+                        : CupertinoIcons.speaker_1,
+                    size: 30,
+                    color: isAudioSpeakerEnabled ? Colors.white : primaryColor,
+                  ),
+                ),
+              ),
+              // Camera Reverse
+              TouchRippleEffect(
+                borderRadius: BorderRadius.circular(200),
+                rippleColor: primaryColor,
+                onTap: onCameraButtonPressed,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(200),
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: ImageIcon(
+                    const AssetImage("assets/switch-camera.png"),
+                    color: primaryColor,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TouchRippleEffect(
+            child: GestureDetector(
+              onTap: onCallLeaveButtonPressed,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(200),
+                  border: Border.all(color: Colors.red),
+                  color: Colors.red,
+                ),
+                padding: const EdgeInsets.all(14),
+                child: const Icon(
+                  Icons.call_end,
+                  size: 30,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
-
-          // Mic Control
-          TouchRippleEffect(
-            borderRadius: BorderRadius.circular(12),
-            rippleColor: isMicEnabled ? primaryColor : Colors.white,
-            onTap: onMicButtonPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: secondaryColor),
-                color: isMicEnabled ? primaryColor : Colors.white,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Icon(
-                isMicEnabled ? Icons.mic : Icons.mic_off,
-                size: 30,
-                color: isMicEnabled ? Colors.white : primaryColor,
-              ),
-            ),
-          ),
-
-          // Camera Control
-          TouchRippleEffect(
-            borderRadius: BorderRadius.circular(12),
-            rippleColor: primaryColor,
-            onTap: onCameraButtonPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: secondaryColor),
-                color: isCamEnabled ? primaryColor : Colors.white,
-              ),
-              padding: const EdgeInsets.all(10),
-              child: isCamEnabled
-                  ? const Icon(
-                      Icons.videocam_rounded,
-                      size: 26,
-                      color: Colors.white,
-                    )
-                  : const Icon(
-                      Icons.videocam_off_rounded,
-                      size: 26,
-                      color: primaryColor,
-                    ),
-            ),
-          ),
-
-          // Audio output Control
-          TouchRippleEffect(
-            borderRadius: BorderRadius.circular(12),
-            rippleColor: isAudioSpeakerEnabled ? primaryColor : Colors.white,
-            onTap: onAudioSpeakerButtonPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: secondaryColor),
-                color: isAudioSpeakerEnabled ? primaryColor : Colors.white,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Icon(
-                isAudioSpeakerEnabled
-                    ? CupertinoIcons.speaker_2_fill
-                    : CupertinoIcons.speaker_1,
-                size: 30,
-                color: isAudioSpeakerEnabled ? Colors.white : primaryColor,
-              ),
-            ),
+          const SizedBox(
+            height: 40,
           ),
         ],
       ),
@@ -136,7 +197,7 @@ class MeetingActionControl extends StatelessWidget {
       child: Row(
         children: [
           leadingIcon,
-          const HorizontalSpacer(12),
+          const HorizontalSpacer(200),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -153,7 +214,7 @@ class MeetingActionControl extends StatelessWidget {
                 Text(
                   description,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 200,
                     fontWeight: FontWeight.w500,
                     color: black400,
                   ),

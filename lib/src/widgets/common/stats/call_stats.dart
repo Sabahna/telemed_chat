@@ -63,16 +63,17 @@ class _CallStatsState extends State<CallStats> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Icon(
+                  Icons.network_cell,
+                  size: 40 / 2,
                   color: score! > 7
                       ? green
                       : score! > 4
                           ? yellow
                           : red,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Icon(
-                  Icons.network_cell,
-                  size: 17,
                 ),
               ),
             )
