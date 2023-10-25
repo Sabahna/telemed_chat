@@ -45,6 +45,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   bool _moreThan2Participants = false;
   OutputAudioDevices currentOutputAudioDevice = OutputAudioDevices.earpiece;
   List<MediaDeviceInfo> outputAudioDevices = [];
+  List<MediaDeviceInfo> cameras = [];
 
   // Streams
   Stream? videoStream;
@@ -89,7 +90,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         widget.oneToOneCall.roomState.activePresenterId,
       );
 
-      updateAudioDeviceList(room);
+      updateDeviceList(room);
     } else {
       // Create instance of Room (Meeting)
       room = VideoSDK.createRoom(
@@ -198,6 +199,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                             await meeting.unmuteMic();
                           }
                         },
+
                         // Called when camera button is pressed
                         onCameraButtonPressed: () async {
                           if (videoStream != null) {
@@ -205,6 +207,15 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                           } else {
                             await meeting.enableCam();
                           }
+                        },
+
+                        // Called when camera switch button is pressed
+                        onCameraSwitchButtonPressed: () async {
+                          final MediaDeviceInfo newCam = cameras.firstWhere(
+                            (camera) =>
+                                camera.deviceId != meeting.selectedCamId,
+                          );
+                          await meeting.changeCam(newCam.deviceId);
                         },
 
                         onAudioSpeakerButtonPressed: () async {
@@ -283,7 +294,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
             });
           }
 
-          updateAudioDeviceList(roomMeeting);
+          updateDeviceList(roomMeeting);
         },
       )
 
@@ -399,11 +410,14 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   // update output audio devices
-  void updateAudioDeviceList(Room roomMeeting) {
+  void updateDeviceList(Room roomMeeting) {
     final deviceList = roomMeeting.getAudioOutputDevices();
     setState(() {
       outputAudioDevices.addAll(deviceList);
     });
+
+    // Holds available cameras info
+    cameras = roomMeeting.getCameras();
   }
 
   @override

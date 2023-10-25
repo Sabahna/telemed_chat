@@ -13,6 +13,7 @@ class MeetingActionControl extends StatelessWidget {
     required this.onCallLeaveButtonPressed,
     required this.onMicButtonPressed,
     required this.onCameraButtonPressed,
+    required this.onCameraSwitchButtonPressed,
     required this.onAudioSpeakerButtonPressed,
     required this.name,
     Key? key,
@@ -27,11 +28,13 @@ class MeetingActionControl extends StatelessWidget {
   final void Function() onCallLeaveButtonPressed;
   final void Function() onMicButtonPressed;
   final void Function() onCameraButtonPressed;
+  final void Function() onCameraSwitchButtonPressed;
   final void Function() onAudioSpeakerButtonPressed;
 
   final String name;
 
   final Color primaryColor = const Color(0xff088395);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -94,7 +97,7 @@ class MeetingActionControl extends StatelessWidget {
               TouchRippleEffect(
                 borderRadius: BorderRadius.circular(200),
                 rippleColor: primaryColor,
-                onTap: onCameraButtonPressed,
+                onTap: onCameraSwitchButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(200),
@@ -136,6 +139,7 @@ class MeetingActionControl extends StatelessWidget {
                   ),
                 ),
               ),
+
               // Camera Reverse
               TouchRippleEffect(
                 borderRadius: BorderRadius.circular(200),
