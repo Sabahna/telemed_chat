@@ -242,7 +242,14 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
               width: maxWidth,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.black87,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.5),
+                    const Color(0xff088395).withOpacity(0.8),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
               child: ParticipantView(
                 avatarBackground: Colors.black87,

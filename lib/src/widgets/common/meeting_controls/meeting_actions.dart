@@ -160,20 +160,20 @@ class MeetingActionControl extends StatelessWidget {
             height: 20,
           ),
           TouchRippleEffect(
-            child: GestureDetector(
-              onTap: onCallLeaveButtonPressed,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(200),
-                  border: Border.all(color: Colors.red),
-                  color: Colors.red,
-                ),
-                padding: const EdgeInsets.all(14),
-                child: const Icon(
-                  Icons.call_end,
-                  size: 30,
-                  color: Colors.white,
-                ),
+            borderRadius: BorderRadius.circular(0),
+            rippleColor: Colors.white.withOpacity(0),
+            onTap: onCallLeaveButtonPressed,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(200),
+                border: Border.all(color: Colors.red),
+                color: Colors.red,
+              ),
+              padding: const EdgeInsets.all(14),
+              child: const Icon(
+                Icons.call_end,
+                size: 30,
+                color: Colors.white,
               ),
             ),
           ),

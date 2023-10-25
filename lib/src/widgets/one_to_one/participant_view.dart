@@ -38,15 +38,25 @@ class ParticipantView extends StatelessWidget {
             : Center(
                 child: !isLocalScreenShare
                     ? Container(
-                        padding: EdgeInsets.all(avatarTextSize / 2),
-                        decoration: BoxDecoration(
+                        padding: EdgeInsets.all(avatarTextSize),
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: avatarBackground,
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xff05bfdb),
+                              Color(0xff088395),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
                         ),
                         child: Text(
                           participant.displayName.characters.first
                               .toUpperCase(),
-                          style: TextStyle(fontSize: avatarTextSize),
+                          style: TextStyle(
+                            fontSize: avatarTextSize,
+                            color: Colors.white,
+                          ),
                         ),
                       )
                     : Column(

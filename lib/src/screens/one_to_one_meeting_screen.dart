@@ -125,9 +125,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                           fullScreen = !fullScreen;
                         }),
                       },
-                      child: Container(
+                      child: SizedBox(
                         width: double.infinity,
-                        color: Colors.red,
                         child: OneToOneMeetingContainer(meeting: meeting),
                       ),
                     ),
