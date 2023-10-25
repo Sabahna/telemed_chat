@@ -1,3 +1,4 @@
+import "package:telemed_chat/telemed_chat.dart";
 import "package:videosdk/videosdk.dart";
 
 class OneToOneCall {
@@ -7,7 +8,6 @@ class OneToOneCall {
     required this.displayName,
     this.micEnabled = true,
     this.camEnabled = true,
-    this.chatEnabled = true,
   });
 
   /// Notification information when screen sharing or any action
@@ -16,8 +16,41 @@ class OneToOneCall {
   final String displayName;
   final bool micEnabled;
   final bool camEnabled;
-  final bool chatEnabled;
 
   late String meetingId;
-  late Room room;
+  OneToOneRoomState roomState = OneToOneRoomState();
+}
+
+class OneToOneRoomState {
+  OneToOneRoomState({
+    this.audioStream,
+    this.videoStream,
+    this.activePresenterId,
+    this.room,
+    this.currentOutputAudioDevice,
+  });
+
+  Stream? videoStream;
+  Stream? audioStream;
+  OutputAudioDevices? currentOutputAudioDevice;
+
+  Room? room;
+  dynamic activePresenterId;
+
+  OneToOneRoomState copyWith({
+    Stream? videoStream,
+    Stream? audioStream,
+    OutputAudioDevices? currentOutputAudioDevice,
+    Room? room,
+    dynamic activePresenterId,
+  }) {
+    return OneToOneRoomState(
+      videoStream: videoStream ?? this.videoStream,
+      audioStream: audioStream ?? this.audioStream,
+      currentOutputAudioDevice:
+          currentOutputAudioDevice ?? this.currentOutputAudioDevice,
+      room: room ?? this.room,
+      activePresenterId: activePresenterId ?? this.activePresenterId,
+    );
+  }
 }

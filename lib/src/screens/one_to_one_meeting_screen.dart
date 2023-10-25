@@ -22,21 +22,23 @@ class OneToOneMeetingScreen extends StatefulWidget {
   const OneToOneMeetingScreen({
     required this.oneToOneCall,
     required this.justView,
-    this.updateRoom,
+    required this.updateRoom,
     Key? key,
   }) : super(key: key);
   final OneToOneCall oneToOneCall;
   final bool justView;
-  final void Function(Room value)? updateRoom;
+  final void Function({
+    OneToOneRoomState? roomState,
+    bool reset,
+    bool resetAudioStream,
+    bool resetVideoStream,
+  }) updateRoom;
 
   @override
   _OneToOneMeetingScreenState createState() => _OneToOneMeetingScreenState();
 }
 
 class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
-  bool showChatSnackbar = true;
-  String recordingState = "RECORDING_STOPPED";
-
   // Meeting
   late Room meeting;
   bool _joined = false;
@@ -66,15 +68,28 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   Future<void> initiative() async {
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    unawaited(
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]),
+    );
 
     late Room room;
 
     if (widget.justView) {
-      room = widget.oneToOneCall.room;
+      currentOutputAudioDevice =
+          widget.oneToOneCall.roomState.currentOutputAudioDevice!;
+      room = widget.oneToOneCall.roomState.room!;
+      meeting = room;
+      _joined = true;
+      audioStream = widget.oneToOneCall.roomState.audioStream;
+      videoStream = widget.oneToOneCall.roomState.videoStream;
+      updateRemoteParticipantStream(
+        widget.oneToOneCall.roomState.activePresenterId,
+      );
+
+      updateAudioDeviceList(room);
     } else {
       // Create instance of Room (Meeting)
       room = VideoSDK.createRoom(
@@ -89,18 +104,16 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         notification: widget.oneToOneCall.notificationInfo,
       );
 
-      widget.updateRoom!(room);
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(
+          room: room,
+          currentOutputAudioDevice: currentOutputAudioDevice,
+        ),
+      );
     }
 
     // Register meeting events
     registerMeetingEvents(room);
-
-    // update output audio devices
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        outputAudioDevices.addAll(room.getAudioOutputDevices());
-      });
-    });
 
     // Join meeting
     if (!widget.justView) {
@@ -172,7 +185,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                             OutputAudioDevices.speakerphone,
                         // Called when Call End button is pressed
                         onCallLeaveButtonPressed: () {
+                          widget.updateRoom(reset: true);
                           meeting.leave();
+                          Navigator.of(context).pop();
                         },
 
                         // Called when mic button is pressed
@@ -205,6 +220,12 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                               currentOutputAudioDevice =
                                   OutputAudioDevices.earpiece;
                             });
+                            widget.updateRoom(
+                              roomState: widget.oneToOneCall.roomState.copyWith(
+                                currentOutputAudioDevice:
+                                    OutputAudioDevices.earpiece,
+                              ),
+                            );
                           } else {
                             final audioDevice = outputAudioDevices.firstWhere(
                               (element) =>
@@ -216,12 +237,24 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                               currentOutputAudioDevice =
                                   OutputAudioDevices.speakerphone;
                             });
+                            widget.updateRoom(
+                              roomState: widget.oneToOneCall.roomState.copyWith(
+                                currentOutputAudioDevice:
+                                    OutputAudioDevices.speakerphone,
+                              ),
+                            );
                           }
                         },
                       ),
                     ),
                   ),
                 ],
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Icon(Icons.time_to_leave_rounded),
               ),
             )
           : _moreThan2Participants
@@ -249,6 +282,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
               _joined = true;
             });
           }
+
+          updateAudioDeviceList(roomMeeting);
         },
       )
 
@@ -261,23 +296,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         }
 
         // TODO(jack): Navigate to screen when room end
-        Navigator.of(context).pop();
         // await Navigator.pushAndRemoveUntil(
         //     context,
         //     MaterialPageRoute(builder: (context) => const JoinScreen()),
         //     (route) => false,);
-      })
-
-      // Called when recording is started
-      ..on(Events.recordingStateChanged, (status) {
-        // showSnackBarMessage(
-        //     message:
-        //         "Meeting recording ${status == "RECORDING_STARTING" ? "is starting" : status == "RECORDING_STARTED" ? "started" : status == "RECORDING_STOPPING" ? "is stopping" : "stopped"}",
-        //     context: context,);
-
-        setState(() {
-          recordingState = status;
-        });
       });
 
     // Called when stream is enabled
@@ -287,10 +309,19 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         setState(() {
           videoStream = tempStream;
         });
+
+        widget.updateRoom(
+          roomState:
+              widget.oneToOneCall.roomState.copyWith(videoStream: tempStream),
+        );
       } else if (stream.kind == "audio") {
         setState(() {
           audioStream = tempStream;
         });
+        widget.updateRoom(
+          roomState:
+              widget.oneToOneCall.roomState.copyWith(audioStream: tempStream),
+        );
       }
     });
 
@@ -301,24 +332,29 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         setState(() {
           videoStream = null;
         });
+        widget.updateRoom(
+          resetVideoStream: true,
+        );
       } else if (stream.kind == "audio" && audioStream?.id == stream.id) {
         setState(() {
           audioStream = null;
         });
+
+        widget.updateRoom(
+          resetAudioStream: true,
+        );
       }
     });
 
     // Called when presenter is changed
     roomMeeting
       ..on(Events.presenterChanged, (activePresenterId) {
-        final Participant? activePresenterParticipant =
-            roomMeeting.participants[activePresenterId];
-
-        // Get Share Stream
-        final Stream? stream = activePresenterParticipant?.streams.values
-            .singleWhere((e) => e.kind == "share");
-
-        setState(() => remoteParticipantShareStream = stream);
+        updateRemoteParticipantStream(activePresenterId);
+        widget.updateRoom(
+          roomState: widget.oneToOneCall.roomState.copyWith(
+            activePresenterId: activePresenterId,
+          ),
+        );
       })
       ..on(
         Events.participantLeft,
@@ -346,9 +382,28 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       );
   }
 
+  void updateRemoteParticipantStream(dynamic activePresenterId) {
+    final Participant? activePresenterParticipant =
+        meeting.participants[activePresenterId];
+
+    // Get Share Stream
+    final Stream? stream = activePresenterParticipant?.streams.values
+        .singleWhere((e) => e.kind == "share");
+
+    setState(() => remoteParticipantShareStream = stream);
+  }
+
   Future<bool> _onWillPopScope() async {
     meeting.leave();
     return true;
+  }
+
+  // update output audio devices
+  void updateAudioDeviceList(Room roomMeeting) {
+    final deviceList = roomMeeting.getAudioOutputDevices();
+    setState(() {
+      outputAudioDevices.addAll(deviceList);
+    });
   }
 
   @override

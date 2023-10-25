@@ -3,7 +3,6 @@ import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
 import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
-import "package:videosdk/videosdk.dart";
 
 class OneToOneCommunication {
   OneToOneCommunication({required this.oneToOneCall});
@@ -18,7 +17,6 @@ class OneToOneCommunication {
         oneToOneCall.meetingId = meetingID;
         await _navigateOneToOneMeeting(
           context,
-          updateRoom: _updateRoom,
         );
       }
     } catch (error) {
@@ -45,7 +43,6 @@ class OneToOneCommunication {
 
         await _navigateOneToOneMeeting(
           context,
-          updateRoom: _updateRoom,
         );
       }
     } else {
@@ -62,14 +59,27 @@ class OneToOneCommunication {
     );
   }
 
-  void _updateRoom(Room value) {
-    oneToOneCall.room = value;
+  void _updateRoomState({
+    OneToOneRoomState? roomState,
+    bool reset = false,
+    bool resetAudioStream = false,
+    bool resetVideoStream = false,
+  }) {
+    if (reset) {
+      oneToOneCall.roomState = OneToOneRoomState();
+      return;
+    } else if (resetAudioStream) {
+      oneToOneCall.roomState.audioStream = null;
+    } else if (resetVideoStream) {
+      oneToOneCall.roomState.videoStream = null;
+    } else if (roomState != null) {
+      oneToOneCall.roomState = roomState;
+    }
   }
 
   Future<void> _navigateOneToOneMeeting(
     BuildContext context, {
     bool justView = false,
-    void Function(Room value)? updateRoom,
   }) async {
     await Navigator.push(
       context,
@@ -77,7 +87,7 @@ class OneToOneCommunication {
         builder: (context) => OneToOneMeetingScreen(
           oneToOneCall: oneToOneCall,
           justView: justView,
-          updateRoom: updateRoom,
+          updateRoom: _updateRoomState,
         ),
       ),
     );
