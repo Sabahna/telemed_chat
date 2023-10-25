@@ -155,16 +155,22 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
                   /// Back Button
                   Positioned(
-                    top: 35,
+                    top: 50,
                     left: 15,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 25,
-                        color: Colors.white,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xff088395),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 25,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

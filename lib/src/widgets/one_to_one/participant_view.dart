@@ -94,7 +94,7 @@ class ParticipantView extends StatelessWidget {
                       ),
               ),
         Positioned(
-          top: 40,
+          top: 50,
           right: 12,
           child: Column(
             children: [
