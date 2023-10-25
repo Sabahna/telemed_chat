@@ -3,6 +3,7 @@ import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
 import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
+import "package:videosdk/videosdk.dart";
 
 class OneToOneCommunication {
   OneToOneCommunication({required this.oneToOneCall});
@@ -48,12 +49,30 @@ class OneToOneCommunication {
     }
   }
 
-  Future<void> _navigateOneToOneMeeting(BuildContext context) async {
+  Future<void> viewCommunication(BuildContext context) async {
+    await _navigateOneToOneMeeting(
+      context,
+      justView: true,
+      updateRoom: _updateRoom,
+    );
+  }
+
+  void _updateRoom(Room value) {
+    oneToOneCall.room = value;
+  }
+
+  Future<void> _navigateOneToOneMeeting(
+    BuildContext context, {
+    bool justView = false,
+    void Function(Room value)? updateRoom,
+  }) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => OneToOneMeetingScreen(
           oneToOneCall: oneToOneCall,
+          justView: justView,
+          updateRoom: updateRoom,
         ),
       ),
     );

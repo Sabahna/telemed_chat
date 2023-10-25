@@ -21,9 +21,13 @@ enum OutputAudioDevices {
 class OneToOneMeetingScreen extends StatefulWidget {
   const OneToOneMeetingScreen({
     required this.oneToOneCall,
+    required this.justView,
+    this.updateRoom,
     Key? key,
   }) : super(key: key);
   final OneToOneCall oneToOneCall;
+  final bool justView;
+  final void Function(Room value)? updateRoom;
 
   @override
   _OneToOneMeetingScreenState createState() => _OneToOneMeetingScreenState();
@@ -67,18 +71,26 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       DeviceOrientation.portraitDown,
     ]);
 
-    // Create instance of Room (Meeting)
-    final Room room = VideoSDK.createRoom(
-      roomId: widget.oneToOneCall.meetingId,
-      token: widget.oneToOneCall.token,
-      displayName: widget.oneToOneCall.displayName,
-      micEnabled: widget.oneToOneCall.micEnabled,
-      camEnabled: widget.oneToOneCall.camEnabled,
-      maxResolution: "hd",
-      multiStream: false,
-      defaultCameraIndex: 1,
-      notification: widget.oneToOneCall.notificationInfo,
-    );
+    late Room room;
+
+    if (widget.justView) {
+      room = widget.oneToOneCall.room;
+    } else {
+      // Create instance of Room (Meeting)
+      room = VideoSDK.createRoom(
+        roomId: widget.oneToOneCall.meetingId,
+        token: widget.oneToOneCall.token,
+        displayName: widget.oneToOneCall.displayName,
+        micEnabled: widget.oneToOneCall.micEnabled,
+        camEnabled: widget.oneToOneCall.camEnabled,
+        maxResolution: "hd",
+        multiStream: false,
+        defaultCameraIndex: 1,
+        notification: widget.oneToOneCall.notificationInfo,
+      );
+
+      widget.updateRoom!(room);
+    }
 
     // Register meeting events
     registerMeetingEvents(room);
@@ -91,7 +103,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     });
 
     // Join meeting
-    await room.join();
+    if (widget.justView) {
+      await room.join();
+    }
   }
 
   @override
