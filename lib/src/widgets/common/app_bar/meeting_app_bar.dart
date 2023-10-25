@@ -21,10 +21,10 @@ class MeetingAppBar extends StatefulWidget {
   final bool isFullScreen;
 
   @override
-  State<MeetingAppBar> createState() => MeetingAppBarState();
+  State<MeetingAppBar> createState() => _MeetingAppBarState();
 }
 
-class MeetingAppBarState extends State<MeetingAppBar> {
+class _MeetingAppBarState extends State<MeetingAppBar> {
   Duration? elapsedTime;
   Timer? sessionTimer;
 

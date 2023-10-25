@@ -29,13 +29,10 @@ class ParticipantView extends StatelessWidget {
     return Stack(
       children: [
         stream != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: RTCVideoView(
-                  stream!.renderer!,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  mirror: true,
-                ),
+            ? RTCVideoView(
+                stream!.renderer!,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                mirror: true,
               )
             : Center(
                 child: !isLocalScreenShare
@@ -87,7 +84,7 @@ class ParticipantView extends StatelessWidget {
               ),
         if (!isMicOn)
           Positioned(
-            top: 8,
+            top: 35,
             right: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -103,7 +100,7 @@ class ParticipantView extends StatelessWidget {
           ),
         if (isScreenShare)
           Positioned(
-            bottom: 8,
+            bottom: 35,
             left: 8,
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -118,7 +115,11 @@ class ParticipantView extends StatelessWidget {
               ),
             ),
           ),
-        Positioned(top: 4, left: 4, child: CallStats(participant: participant)),
+        Positioned(
+          top: 35,
+          left: 4,
+          child: CallStats(participant: participant),
+        ),
       ],
     );
   }
