@@ -11,9 +11,14 @@ class OneToOneCommunication {
 
   final OneToOneCall oneToOneCall;
 
-  Future<String> createAndJoin(BuildContext context) async {
+  Future<void> createAndJoin(
+    BuildContext context,
+    FutureOr<void> Function(String meetingId) callBack,
+  ) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
+
+      callBack(meetingID);
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
@@ -21,8 +26,6 @@ class OneToOneCommunication {
           context,
         );
       }
-
-      return meetingID;
     } catch (error) {
       if (context.mounted) {
         showSnackBarMessage(message: error.toString(), context: context);
