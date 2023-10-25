@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
@@ -9,7 +11,7 @@ class OneToOneCommunication {
 
   final OneToOneCall oneToOneCall;
 
-  Future<void> createAndJoin(BuildContext context) async {
+  Future<String> createAndJoin(BuildContext context) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
 
@@ -19,10 +21,13 @@ class OneToOneCommunication {
           context,
         );
       }
+
+      return meetingID;
     } catch (error) {
       if (context.mounted) {
         showSnackBarMessage(message: error.toString(), context: context);
       }
+      throw error.toString();
     }
   }
 
