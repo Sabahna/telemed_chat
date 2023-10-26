@@ -6,7 +6,7 @@ class OneToOneCall {
     required this.notificationInfo,
     required this.token,
     required this.displayName,
-    this.micEnabled = true,
+    this.speakerEnabled = true,
     this.camEnabled = true,
   });
 
@@ -14,7 +14,7 @@ class OneToOneCall {
   final NotificationInfo notificationInfo;
   final String token;
   final String displayName;
-  final bool micEnabled;
+  final bool speakerEnabled;
   final bool camEnabled;
 
   late String meetingId;

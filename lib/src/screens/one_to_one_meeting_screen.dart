@@ -98,7 +98,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
       updateDeviceList(room);
     } else {
-      if (widget.oneToOneCall.micEnabled) {
+      if (widget.oneToOneCall.speakerEnabled) {
         currentOutputAudioDevice = OutputAudioDevices.speakerphone;
       }
       // Create instance of Room (Meeting)
@@ -106,7 +106,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         roomId: widget.oneToOneCall.meetingId,
         token: widget.oneToOneCall.token,
         displayName: widget.oneToOneCall.displayName,
-        micEnabled: widget.oneToOneCall.micEnabled,
         camEnabled: widget.oneToOneCall.camEnabled,
         maxResolution: "hd",
         multiStream: false,
