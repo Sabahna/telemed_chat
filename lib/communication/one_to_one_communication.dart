@@ -19,7 +19,7 @@ class OneToOneCommunication {
   /// You can call this method when calling, otherwise this may be null 😅
   void Function()? callEnd;
 
-  Future<bool?> createAndJoin(
+  Future<String?> createAndJoin(
     BuildContext context,
     FutureOr<void> Function(String meetingId) callBack,
   ) async {
@@ -44,7 +44,7 @@ class OneToOneCommunication {
     return null;
   }
 
-  Future<bool?> join(String meetingId, BuildContext context) async {
+  Future<String?> join(String meetingId, BuildContext context) async {
     if (meetingId.isEmpty) {
       showSnackBarMessage(
         message: "Please enter Valid Meeting ID",
@@ -72,7 +72,7 @@ class OneToOneCommunication {
     return null;
   }
 
-  Future<bool> viewCommunication(BuildContext context) async {
+  Future<String> viewCommunication(BuildContext context) async {
     return await _navigateOneToOneMeeting(
       context,
       justView: true,
@@ -98,11 +98,11 @@ class OneToOneCommunication {
     }
   }
 
-  Future<bool> _navigateOneToOneMeeting(
+  Future<String> _navigateOneToOneMeeting(
     BuildContext context, {
     bool justView = false,
   }) async {
-    late bool isMinimized;
+    late String state;
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -115,10 +115,10 @@ class OneToOneCommunication {
         ),
       ),
     ).then((value) {
-      isMinimized = value;
+      state = value;
     });
 
-    return isMinimized;
+    return state;
   }
 
   void _updateCallEndFunc(void Function()? func) {

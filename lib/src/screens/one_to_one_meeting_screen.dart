@@ -178,7 +178,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          Navigator.of(context).pop(true);
+                          Navigator.of(context).pop("minimized");
                         },
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
@@ -330,7 +330,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         }
 
         // TODO(jack): Navigate to screen when room end
-        Navigator.of(widget.globalKey.currentContext!).pop(false);
+        Navigator.of(widget.globalKey.currentContext!).pop("callEnd");
       });
 
     // Called when stream is enabled
@@ -428,8 +428,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   Future<bool> _onWillPopScope() async {
-    meetingCallEnd();
-    return true;
+    Navigator.of(context).pop("minimized");
+    return false;
   }
 
   // update output audio devices
