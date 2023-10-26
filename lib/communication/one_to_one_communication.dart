@@ -16,8 +16,8 @@ class OneToOneCommunication {
   ///
   final GlobalKey globalKey;
 
-  final StreamController<bool> _minimizedStream = StreamController<bool>();
-  late StreamSubscription<bool> _minimizedStreamSubscribe;
+  final StreamController<bool> _callEndStream = StreamController<bool>();
+  late StreamSubscription<bool> _callEndStreamSubscribe;
 
   /// You can call this method when calling, otherwise this may be null 😅
   void Function()? callEnd;
@@ -85,16 +85,16 @@ class OneToOneCommunication {
     );
   }
 
-  void listenMinimized(
+  void listenCallEnd(
     FutureOr<void> Function({required bool callEnd}) callBack,
   ) {
-    _minimizedStreamSubscribe = _minimizedStream.stream.listen((event) async {
+    _callEndStreamSubscribe = _callEndStream.stream.listen((event) async {
       callBack(callEnd: event);
     });
   }
 
-  void disposeMinimized() {
-    unawaited(_minimizedStreamSubscribe.cancel());
+  void disposeCallEnd() {
+    unawaited(_callEndStreamSubscribe.cancel());
   }
 
   void _updateRoomState({
@@ -121,7 +121,7 @@ class OneToOneCommunication {
     BuildContext context, {
     bool justView = false,
   }) async {
-    _minimizedStream.add(false);
+    _callEndStream.add(false);
     IsMinimizedState.I.state = false;
 
     late bool state;
@@ -133,11 +133,12 @@ class OneToOneCommunication {
           justView: justView,
           globalKey: globalKey,
           updateCallEndFunc: _updateCallEndFunc,
-          minimizedCallBack: _updateMinimizedStream,
+          emitCallEndStream: _emitCallEndStream,
           updateRoom: _updateRoomState,
         ),
       ),
     ).then((value) {
+      IsMinimizedState.I.state = value;
       state = value;
     });
 
@@ -145,13 +146,10 @@ class OneToOneCommunication {
   }
 
   void _updateCallEndFunc(void Function() func) {
-    callEnd = () {
-      IsMinimizedState.I.state = true;
-      func();
-    };
+    callEnd = func;
   }
 
-  void _updateMinimizedStream({required bool callEnd}) {
-    _minimizedStream.add(callEnd);
+  void _emitCallEndStream({required bool callEnd}) {
+    _callEndStream.add(callEnd);
   }
 }

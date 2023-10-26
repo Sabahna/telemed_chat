@@ -24,7 +24,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.justView,
     required this.globalKey,
     required this.updateCallEndFunc,
-    required this.minimizedCallBack,
+    required this.emitCallEndStream,
     required this.updateRoom,
     Key? key,
   }) : super(key: key);
@@ -35,7 +35,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
   /// update method
   ///
   final void Function(void Function() func) updateCallEndFunc;
-  final void Function({required bool callEnd}) minimizedCallBack;
+  final void Function({required bool callEnd}) emitCallEndStream;
   final void Function({
     OneToOneRoomState? roomState,
     bool reset,
@@ -332,7 +332,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         }
 
         // TODO(jack): Navigate to screen when room end
-        widget.minimizedCallBack(callEnd: true);
+        widget.emitCallEndStream(callEnd: true);
 
         if (!IsMinimizedState.I.state) {
           Navigator.of(widget.globalKey.currentContext!).pop(false);
