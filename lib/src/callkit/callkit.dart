@@ -7,6 +7,14 @@ import "package:telemed_chat/models/callkit_abstract.dart";
 import "package:uuid/uuid.dart";
 
 class CallKitVOIP extends CallKitVOIPAbstract {
+  factory CallKitVOIP() {
+    return I;
+  }
+
+  CallKitVOIP._();
+
+  static final CallKitVOIP I = CallKitVOIP._();
+
   String? _currentUuid;
 
   @override
@@ -129,12 +137,11 @@ class CallKitVOIP extends CallKitVOIPAbstract {
 
   @override
   Future<void> listenerEventBackground({
-    required FutureOr<void> Function() onJoin,
     required FutureOr<void> Function() onDecline,
     required FutureOr<void> Function() onDeepLink,
   }) async {
     onCallDeepLink = onDeepLink;
-    await listenerEvent(onJoin: onJoin, onDecline: onDecline);
+    await listenerEvent(onJoin: () {}, onDecline: onDecline);
   }
 
   @override

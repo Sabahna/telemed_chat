@@ -40,7 +40,6 @@ abstract class CallKitVOIPAbstract {
 
   /// Listen to the background call kit event
   Future<void> listenerEventBackground({
-    required FutureOr<void> Function() onJoin,
     required FutureOr<void> Function() onDecline,
     required FutureOr<void> Function() onDeepLink,
   });
