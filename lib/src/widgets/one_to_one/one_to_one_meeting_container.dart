@@ -4,9 +4,13 @@ import "package:telemed_chat/src/widgets/one_to_one/participant_view.dart";
 import "package:videosdk/videosdk.dart";
 
 class OneToOneMeetingContainer extends StatefulWidget {
-  const OneToOneMeetingContainer({required this.meeting, Key? key})
-      : super(key: key);
+  const OneToOneMeetingContainer({
+    required this.meeting,
+    required this.isFrontCamera,
+    Key? key,
+  }) : super(key: key);
   final Room meeting;
+  final bool isFrontCamera;
 
   @override
   State<OneToOneMeetingContainer> createState() =>
@@ -252,7 +256,6 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
                 ),
               ),
               child: ParticipantView(
-                avatarBackground: Colors.black87,
                 stream: largeViewStream,
                 isMicOn: remoteParticipant != null
                     ? remoteAudioStream != null
@@ -262,10 +265,8 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
                 participant: remoteParticipant != null
                     ? remoteParticipant!
                     : localParticipant!,
-                isLocalScreenShare: localShareStream != null,
-                isScreenShare:
-                    remoteShareStream != null || localShareStream != null,
                 avatarTextSize: 40,
+                isFrontCamera: widget.isFrontCamera,
               ),
             ),
             if (remoteParticipant != null || localShareStream != null)
@@ -298,18 +299,17 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
                     ),
                     child: ParticipantView(
                       avatarTextSize: 30,
-                      avatarBackground: Colors.black54,
                       stream: smallViewStream,
                       isMicOn: (localAudioStream != null &&
                               remoteShareStream == null) ||
                           (remoteAudioStream != null &&
                               remoteShareStream != null),
+                      isFrontCamera: widget.isFrontCamera,
                       onStopScreenSharePressed: () async =>
                           widget.meeting.disableScreenShare(),
                       participant: remoteShareStream != null
                           ? remoteParticipant!
                           : localParticipant!,
-                      isScreenShare: false,
                     ),
                   ),
                 ),

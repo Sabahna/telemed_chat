@@ -149,7 +149,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       },
                       child: SizedBox(
                         width: double.infinity,
-                        child: OneToOneMeetingContainer(meeting: meeting),
+                        child: OneToOneMeetingContainer(
+                          meeting: meeting,
+                          isFrontCamera: isFrontCamera,
+                        ),
                       ),
                     ),
                   ),
