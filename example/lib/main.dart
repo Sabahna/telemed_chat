@@ -95,6 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 oneToOneCommunication.createAndJoin(context, (meetingId) {
                   debugPrint(
                       "----------------------meetingId $meetingId----------------------");
+                }).then((value) {
+                  debugPrint(
+                      "----------------------isMinimized $value----------------------");
                 });
               },
               child: const Text("Create Meeting"),

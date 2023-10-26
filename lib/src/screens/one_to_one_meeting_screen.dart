@@ -174,7 +174,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(true);
                         },
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
@@ -288,12 +288,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                   ),
                 ],
               ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Icon(Icons.time_to_leave_rounded),
-              ),
             )
           : _moreThan2Participants
               ? ParticipantLimitReached(
@@ -334,7 +328,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         }
 
         // TODO(jack): Navigate to screen when room end
-        Navigator.of(widget.globalKey.currentContext!).pop();
+        Navigator.of(widget.globalKey.currentContext!).pop(false);
       });
 
     // Called when stream is enabled
@@ -432,7 +426,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   Future<bool> _onWillPopScope() async {
-    meeting.leave();
+    widget.updateRoom(reset: true);
+    meeting.end();
     return true;
   }
 

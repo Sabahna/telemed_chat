@@ -10,12 +10,13 @@ class OneToOneCommunication {
   OneToOneCommunication({required this.oneToOneCall, required this.globalKey});
 
   final OneToOneCall oneToOneCall;
+
   /// When user join or create call, I have listened to pop widget when call is end.
   /// In the same time, user can also be minimized while calling
   ///
   final GlobalKey globalKey;
 
-  Future<void> createAndJoin(
+  Future<bool?> createAndJoin(
     BuildContext context,
     FutureOr<void> Function(String meetingId) callBack,
   ) async {
@@ -26,7 +27,7 @@ class OneToOneCommunication {
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
-        await _navigateOneToOneMeeting(
+        return await _navigateOneToOneMeeting(
           context,
         );
       }
@@ -36,15 +37,17 @@ class OneToOneCommunication {
       }
       throw error.toString();
     }
+
+    return null;
   }
 
-  Future<void> join(String meetingId, BuildContext context) async {
+  Future<bool?> join(String meetingId, BuildContext context) async {
     if (meetingId.isEmpty) {
       showSnackBarMessage(
         message: "Please enter Valid Meeting ID",
         context: context,
       );
-      return;
+      return null;
     }
     final validMeeting =
         await Api.I.validateMeeting(oneToOneCall.token, meetingId);
@@ -53,7 +56,7 @@ class OneToOneCommunication {
       if (context.mounted) {
         oneToOneCall.meetingId = meetingId;
 
-        await _navigateOneToOneMeeting(
+        return await _navigateOneToOneMeeting(
           context,
         );
       }
@@ -61,11 +64,13 @@ class OneToOneCommunication {
       if (context.mounted) {
         showSnackBarMessage(message: "Invalid Meeting ID", context: context);
       }
+      return null;
     }
+    return null;
   }
 
-  Future<void> viewCommunication(BuildContext context) async {
-    await _navigateOneToOneMeeting(
+  Future<bool> viewCommunication(BuildContext context) async {
+    return await _navigateOneToOneMeeting(
       context,
       justView: true,
     );
@@ -89,10 +94,11 @@ class OneToOneCommunication {
     }
   }
 
-  Future<void> _navigateOneToOneMeeting(
+  Future<bool> _navigateOneToOneMeeting(
     BuildContext context, {
     bool justView = false,
   }) async {
+    late bool isMinimized;
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -103,6 +109,10 @@ class OneToOneCommunication {
           updateRoom: _updateRoomState,
         ),
       ),
-    );
+    ).then((value) {
+      isMinimized = value;
+    });
+
+    return isMinimized;
   }
 }
