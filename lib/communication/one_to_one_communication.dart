@@ -147,6 +147,7 @@ class OneToOneCommunication {
           emitCallEndStream: _emitCallEndStream,
           updateRoom: _updateRoomState,
           callKitVoip: callKitVoip,
+          callDecline: _callDecline,
         ),
       ),
     ).then((value) {

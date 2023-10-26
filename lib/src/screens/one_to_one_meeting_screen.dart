@@ -216,7 +216,14 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                             OutputAudioDevices.speakerphone,
                         isFrontCamera: isFrontCamera,
                         // Called when Call End button is pressed
-                        onCallLeaveButtonPressed: meetingCallEnd,
+                        onCallLeaveButtonPressed: () async {
+                          /// for just caller to notify call decline at the moment of not answering from receiver
+                          if (OneToOneEventState.I.room.participants.isEmpty) {
+                            widget.callDecline?.call();
+                          }
+
+                          await meetingCallEnd();
+                        },
 
                         // Called when mic button is pressed
                         onMicButtonPressed: () async {
@@ -461,11 +468,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   /// meeting call end
   ///
   Future<void> meetingCallEnd() async {
-    /// for just caller to notify call decline at the moment of not answering from receiver
-    if (OneToOneEventState.I.room.participants.isEmpty) {
-      widget.callDecline?.call();
-    }
-
     widget.updateRoom(reset: true);
     meeting.end();
     await widget.callKitVoip.callEnd();
