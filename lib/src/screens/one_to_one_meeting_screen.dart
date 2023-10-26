@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
+import "package:telemed_chat/src/callkit/callkit.dart";
 import "package:telemed_chat/src/widgets/common/joining/participant_limit_reached.dart";
 import "package:telemed_chat/src/widgets/common/joining/waiting_to_join.dart";
 import "package:telemed_chat/src/widgets/common/meeting_controls/meeting_actions.dart";
@@ -23,6 +24,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.oneToOneCall,
     required this.justView,
     required this.globalKey,
+    required this.callKitVoip,
     required this.updateCallEndFunc,
     required this.emitCallEndStream,
     required this.updateRoom,
@@ -31,10 +33,11 @@ class OneToOneMeetingScreen extends StatefulWidget {
   final OneToOneCall oneToOneCall;
   final bool justView;
   final GlobalKey globalKey;
+  final CallKitVOIP callKitVoip;
 
   /// update method
   ///
-  final void Function(void Function() func) updateCallEndFunc;
+  final void Function(Future<void> Function() func) updateCallEndFunc;
   final void Function({required bool callEnd}) emitCallEndStream;
   final void Function({
     OneToOneRoomState? roomState,
@@ -451,9 +454,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
   /// meeting call end
   ///
-  void meetingCallEnd() {
+  Future<void> meetingCallEnd() async {
     widget.updateRoom(reset: true);
     meeting.end();
+    await widget.callKitVoip.callEnd();
   }
 
   @override

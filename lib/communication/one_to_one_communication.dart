@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
+import "package:telemed_chat/src/callkit/callkit.dart";
 import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
 
@@ -20,7 +21,9 @@ class OneToOneCommunication {
   late StreamSubscription<bool> _callEndStreamSubscribe;
 
   /// You can call this method when calling, otherwise this may be null 😅
-  void Function()? callEnd;
+  Future<void> Function()? callEnd;
+
+  final callKitVoip = CallKitVOIP();
 
   /// true -> when screen is minimized while calling
   Future<bool?> createAndJoin(
@@ -135,6 +138,7 @@ class OneToOneCommunication {
           updateCallEndFunc: _updateCallEndFunc,
           emitCallEndStream: _emitCallEndStream,
           updateRoom: _updateRoomState,
+          callKitVoip: callKitVoip,
         ),
       ),
     ).then((value) {
@@ -145,7 +149,7 @@ class OneToOneCommunication {
     return state;
   }
 
-  void _updateCallEndFunc(void Function() func) {
+  void _updateCallEndFunc(Future<void> Function() func) {
     callEnd = func;
   }
 
