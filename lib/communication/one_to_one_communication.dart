@@ -23,12 +23,17 @@ class OneToOneCommunication {
   /// You can call this method when calling, otherwise this may be null 😅
   Future<void> Function()? callEnd;
 
+  /// When caller ended at the moment of not answering from partner.
+  ///
+  FutureOr<void> Function()? _callDecline;
+
   final callKitVoip = CallKitVOIP();
 
   /// true -> when screen is minimized while calling
   Future<bool?> createAndJoin(
     BuildContext context,
     FutureOr<void> Function(String meetingId) callBack,
+    FutureOr<void> Function() callDecline,
   ) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
@@ -37,6 +42,8 @@ class OneToOneCommunication {
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
+        _callDecline = callDecline;
+
         return await _navigateOneToOneMeeting(
           context,
         );
@@ -109,6 +116,7 @@ class OneToOneCommunication {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
       callEnd = null;
+      _callDecline = null;
 
       return;
     } else if (resetAudioStream) {

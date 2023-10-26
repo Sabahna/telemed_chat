@@ -28,6 +28,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.updateCallEndFunc,
     required this.emitCallEndStream,
     required this.updateRoom,
+    this.callDecline,
     Key? key,
   }) : super(key: key);
   final OneToOneCall oneToOneCall;
@@ -45,6 +46,8 @@ class OneToOneMeetingScreen extends StatefulWidget {
     bool resetAudioStream,
     bool resetVideoStream,
   }) updateRoom;
+
+  final FutureOr<void> Function()? callDecline;
 
   @override
   _OneToOneMeetingScreenState createState() => _OneToOneMeetingScreenState();
@@ -455,6 +458,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   /// meeting call end
   ///
   Future<void> meetingCallEnd() async {
+    /// for just caller to notify call decline at the moment of not answering from receiver
+    widget.callDecline?.call();
+
     widget.updateRoom(reset: true);
     meeting.end();
     await widget.callKitVoip.callEnd();

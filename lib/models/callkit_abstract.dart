@@ -20,7 +20,6 @@ abstract class CallKitVOIPAbstract {
   ///
   Future<void> inComingCall({
     required String callerName,
-    required String callerId,
     required String appName,
     String? callerHandle,
     String? callerAvatar,
