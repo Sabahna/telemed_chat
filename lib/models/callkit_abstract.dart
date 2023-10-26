@@ -5,8 +5,6 @@ import "package:flutter_callkit_incoming/entities/call_kit_params.dart";
 abstract class CallKitVOIPAbstract {
   late CallKitParams callKitParams;
 
-  FutureOr<void> Function()? onCallDeepLink;
-
   /// To show up the incoming call alert
   ///
   /// [callerName] is the name of the caller to display
@@ -34,14 +32,13 @@ abstract class CallKitVOIPAbstract {
 
   /// Listen to the call kit event
   Future<void> listenerEvent({
-    required FutureOr<void> Function() onJoin,
     required FutureOr<void> Function() onDecline,
+    required FutureOr<void> Function() onJoin,
   });
 
   /// Listen to the background call kit event
   Future<void> listenerEventBackground({
     required FutureOr<void> Function() onDecline,
-    required FutureOr<void> Function() onDeepLink,
   });
 
   Future<void> callEnd();

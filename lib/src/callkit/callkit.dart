@@ -97,15 +97,10 @@ class CallKitVOIP extends CallKitVOIPAbstract {
             debugPrint(
               "----------------------accept call----------------------",
             );
-            if (onCallDeepLink != null) {
-              onCallDeepLink?.call();
-              debugPrint("onCalldeeplink called");
-              onCallDeepLink = null;
-            } else {
-              onJoin();
-              if (_currentUuid != null) {
-                await FlutterCallkitIncoming.setCallConnected(_currentUuid!);
-              }
+
+            onJoin();
+            if (_currentUuid != null) {
+              await FlutterCallkitIncoming.setCallConnected(_currentUuid!);
             }
 
             break;
@@ -138,9 +133,7 @@ class CallKitVOIP extends CallKitVOIPAbstract {
   @override
   Future<void> listenerEventBackground({
     required FutureOr<void> Function() onDecline,
-    required FutureOr<void> Function() onDeepLink,
   }) async {
-    onCallDeepLink = onDeepLink;
     await listenerEvent(onJoin: () {}, onDecline: onDecline);
   }
 
