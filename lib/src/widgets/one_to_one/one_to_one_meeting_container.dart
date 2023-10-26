@@ -273,7 +273,7 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
               Positioned(
                 right: isSmallViewLeftAligned ? null : 8,
                 left: isSmallViewLeftAligned ? 8 : null,
-                bottom: 8,
+                top: 50,
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
                     // Note: Sensitivity is integer used when you don't want to mess up vertical drag
@@ -297,19 +297,22 @@ class _OneToOneMeetingContainerState extends State<OneToOneMeetingContainer> {
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.black54,
                     ),
-                    child: ParticipantView(
-                      avatarTextSize: 30,
-                      stream: smallViewStream,
-                      isMicOn: (localAudioStream != null &&
-                              remoteShareStream == null) ||
-                          (remoteAudioStream != null &&
-                              remoteShareStream != null),
-                      isFrontCamera: widget.isFrontCamera,
-                      onStopScreenSharePressed: () async =>
-                          widget.meeting.disableScreenShare(),
-                      participant: remoteShareStream != null
-                          ? remoteParticipant!
-                          : localParticipant!,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: ParticipantView(
+                        avatarTextSize: 30,
+                        stream: smallViewStream,
+                        isMicOn: (localAudioStream != null &&
+                                remoteShareStream == null) ||
+                            (remoteAudioStream != null &&
+                                remoteShareStream != null),
+                        isFrontCamera: widget.isFrontCamera,
+                        onStopScreenSharePressed: () async =>
+                            widget.meeting.disableScreenShare(),
+                        participant: remoteShareStream != null
+                            ? remoteParticipant!
+                            : localParticipant!,
+                      ),
                     ),
                   ),
                 ),

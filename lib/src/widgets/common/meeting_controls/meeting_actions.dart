@@ -58,16 +58,6 @@ class MeetingActionControl extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(
-                  height: 8,
-                ),
-                const Text(
-                  "10:00",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(
                   height: 12,
                 ),
               ],

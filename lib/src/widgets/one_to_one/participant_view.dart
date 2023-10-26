@@ -54,10 +54,14 @@ class ParticipantView extends StatelessWidget {
                   ),
                 ),
               ),
-        Positioned(
-          top: 50,
-          right: 12,
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 8,
+            right: 8,
+          ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CallStats(participant: participant),
               const SizedBox(

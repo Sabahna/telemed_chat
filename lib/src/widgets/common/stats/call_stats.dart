@@ -2,7 +2,6 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:telemed_chat/src/colors.dart";
-import "package:telemed_chat/src/widgets/common/stats/call_stats_bottom_sheet.dart";
 import "package:videosdk/videosdk.dart";
 
 class CallStats extends StatefulWidget {
@@ -40,25 +39,25 @@ class _CallStatsState extends State<CallStats> {
       child: score != null && !showFullStats
           ? GestureDetector(
               onTap: () async {
-                setState(() {
-                  showFullStats = !showFullStats;
-                });
-                bottomSheetController = showBottomSheet(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  context: context,
-                  builder: (_) {
-                    return CallStatsBottomSheet(
-                      participant: widget.participant,
-                    );
-                  },
-                );
-                await bottomSheetController?.closed.then((value) {
-                  setState(() {
-                    showFullStats = !showFullStats;
-                  });
-                });
+                // setState(() {
+                //   showFullStats = !showFullStats;
+                // });
+                // bottomSheetController = showBottomSheet(
+                //   shape: RoundedRectangleBorder(
+                //     borderRadius: BorderRadius.circular(10.0),
+                //   ),
+                //   context: context,
+                //   builder: (_) {
+                //     return CallStatsBottomSheet(
+                //       participant: widget.participant,
+                //     );
+                //   },
+                // );
+                // await bottomSheetController?.closed.then((value) {
+                //   setState(() {
+                //     showFullStats = !showFullStats;
+                //   });
+                // });
               },
               child: Container(
                 padding: const EdgeInsets.all(4),
