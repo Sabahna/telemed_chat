@@ -16,10 +16,14 @@ class OneToOneCommunication {
   ///
   final GlobalKey globalKey;
 
+  final StreamController<bool> _minimizedStream = StreamController<bool>();
+  late StreamSubscription<bool> _minimizedStreamSubscribe;
+
   /// You can call this method when calling, otherwise this may be null 😅
   void Function()? callEnd;
 
-  Future<String?> createAndJoin(
+  /// true -> when screen is minimized while calling
+  Future<bool?> createAndJoin(
     BuildContext context,
     FutureOr<void> Function(String meetingId) callBack,
   ) async {
@@ -44,7 +48,8 @@ class OneToOneCommunication {
     return null;
   }
 
-  Future<String?> join(String meetingId, BuildContext context) async {
+  /// true -> when screen is minimized while calling
+  Future<bool?> join(String meetingId, BuildContext context) async {
     if (meetingId.isEmpty) {
       showSnackBarMessage(
         message: "Please enter Valid Meeting ID",
@@ -72,11 +77,24 @@ class OneToOneCommunication {
     return null;
   }
 
-  Future<String> viewCommunication(BuildContext context) async {
+  /// true -> when screen is minimized while calling
+  Future<bool> viewCommunication(BuildContext context) async {
     return await _navigateOneToOneMeeting(
       context,
       justView: true,
     );
+  }
+
+  void listenMinimized(
+    FutureOr<void> Function({required bool callEnd}) callBack,
+  ) {
+    _minimizedStreamSubscribe = _minimizedStream.stream.listen((event) async {
+      callBack(callEnd: event);
+    });
+  }
+
+  void disposeMinimized() {
+    unawaited(_minimizedStreamSubscribe.cancel());
   }
 
   void _updateRoomState({
@@ -88,6 +106,7 @@ class OneToOneCommunication {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
       callEnd = null;
+
       return;
     } else if (resetAudioStream) {
       oneToOneCall.roomState.audioStream = null;
@@ -98,11 +117,14 @@ class OneToOneCommunication {
     }
   }
 
-  Future<String> _navigateOneToOneMeeting(
+  Future<bool> _navigateOneToOneMeeting(
     BuildContext context, {
     bool justView = false,
   }) async {
-    late String state;
+    _minimizedStream.add(false);
+    IsMinimizedState.I.state = false;
+
+    late bool state;
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -111,6 +133,7 @@ class OneToOneCommunication {
           justView: justView,
           globalKey: globalKey,
           updateCallEndFunc: _updateCallEndFunc,
+          minimizedCallBack: _updateMinimizedStream,
           updateRoom: _updateRoomState,
         ),
       ),
@@ -121,7 +144,14 @@ class OneToOneCommunication {
     return state;
   }
 
-  void _updateCallEndFunc(void Function()? func) {
-    callEnd = func;
+  void _updateCallEndFunc(void Function() func) {
+    callEnd = () {
+      IsMinimizedState.I.state = true;
+      func();
+    };
+  }
+
+  void _updateMinimizedStream({required bool callEnd}) {
+    _minimizedStream.add(callEnd);
   }
 }

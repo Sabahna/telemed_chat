@@ -58,3 +58,16 @@ class OneToOneRoomState {
     );
   }
 }
+
+/// Singleton state for checking isMinimized or not
+class IsMinimizedState {
+  factory IsMinimizedState() {
+    return I;
+  }
+
+  IsMinimizedState._();
+
+  static final IsMinimizedState I = IsMinimizedState._();
+
+  bool state = false;
+}
