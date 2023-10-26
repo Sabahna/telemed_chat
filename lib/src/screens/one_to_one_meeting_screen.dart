@@ -139,6 +139,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       // Join meeting
       await room.join();
     }
+
+    OneToOneEventState.I.room = room;
   }
 
   @override
@@ -339,8 +341,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
         // TODO(jack): Navigate to screen when room end
         widget.emitCallEndStream(callEnd: true);
+        widget.updateRoom(reset: true);
 
-        if (!IsMinimizedState.I.state) {
+        if (!OneToOneEventState.I.isMinimized) {
           Navigator.of(widget.globalKey.currentContext!).pop(false);
         }
       });
@@ -459,7 +462,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   ///
   Future<void> meetingCallEnd() async {
     /// for just caller to notify call decline at the moment of not answering from receiver
-    widget.callDecline?.call();
+    if (OneToOneEventState.I.room.participants.isEmpty) {
+      widget.callDecline?.call();
+    }
 
     widget.updateRoom(reset: true);
     meeting.end();

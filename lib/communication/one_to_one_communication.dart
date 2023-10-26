@@ -133,7 +133,7 @@ class OneToOneCommunication {
     bool justView = false,
   }) async {
     _callEndStream.add(false);
-    IsMinimizedState.I.state = false;
+    OneToOneEventState.I.isMinimized = false;
 
     late bool state;
     await Navigator.push(
@@ -150,7 +150,7 @@ class OneToOneCommunication {
         ),
       ),
     ).then((value) {
-      IsMinimizedState.I.state = value;
+      OneToOneEventState.I.isMinimized = value;
       state = value;
     });
 
