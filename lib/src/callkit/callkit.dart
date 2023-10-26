@@ -74,8 +74,8 @@ class CallKitVOIP extends CallKitVOIPAbstract {
 
   @override
   Future<void> listenerEvent({
-    required FutureOr<void> Function() join,
-    required FutureOr<void> Function() decline,
+    required FutureOr<void> Function() onJoin,
+    required FutureOr<void> Function() onDecline,
   }) async {
     try {
       FlutterCallkitIncoming.onEvent.listen((event) async {
@@ -89,14 +89,20 @@ class CallKitVOIP extends CallKitVOIPAbstract {
             debugPrint(
               "----------------------accept call----------------------",
             );
-            join();
-            if (_currentUuid != null) {
-              await FlutterCallkitIncoming.setCallConnected(_currentUuid!);
+            if (onCallDeepLink != null) {
+              onCallDeepLink?.call();
+              debugPrint("onCalldeeplink called");
+              onCallDeepLink = null;
+            } else {
+              onJoin();
+              if (_currentUuid != null) {
+                await FlutterCallkitIncoming.setCallConnected(_currentUuid!);
+              }
             }
 
             break;
           case Event.actionCallDecline:
-            decline();
+            onDecline();
             await callEnd();
             break;
           case Event.actionCallTimeout:
@@ -119,6 +125,16 @@ class CallKitVOIP extends CallKitVOIPAbstract {
     } on Exception catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  @override
+  Future<void> listenerEventBackground({
+    required FutureOr<void> Function() onJoin,
+    required FutureOr<void> Function() onDecline,
+    required FutureOr<void> Function() onDeepLink,
+  }) async {
+    onCallDeepLink = onDeepLink;
+    await listenerEvent(onJoin: onJoin, onDecline: onDecline);
   }
 
   @override
