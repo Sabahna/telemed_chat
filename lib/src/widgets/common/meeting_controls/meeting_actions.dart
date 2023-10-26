@@ -10,6 +10,7 @@ class MeetingActionControl extends StatelessWidget {
     required this.isMicEnabled,
     required this.isCamEnabled,
     required this.isAudioSpeakerEnabled,
+    required this.isFrontCamera,
     required this.onCallLeaveButtonPressed,
     required this.onMicButtonPressed,
     required this.onCameraButtonPressed,
@@ -23,6 +24,7 @@ class MeetingActionControl extends StatelessWidget {
   final bool isMicEnabled;
   final bool isCamEnabled;
   final bool isAudioSpeakerEnabled;
+  final bool isFrontCamera;
 
   // callback functions
   final void Function() onCallLeaveButtonPressed;
@@ -97,7 +99,7 @@ class MeetingActionControl extends StatelessWidget {
               TouchRippleEffect(
                 borderRadius: BorderRadius.circular(200),
                 rippleColor: primaryColor,
-                onTap: onCameraSwitchButtonPressed,
+                onTap: onCameraButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(200),
@@ -143,17 +145,17 @@ class MeetingActionControl extends StatelessWidget {
               // Camera Reverse
               TouchRippleEffect(
                 borderRadius: BorderRadius.circular(200),
-                rippleColor: primaryColor,
-                onTap: onCameraButtonPressed,
+                rippleColor: isFrontCamera ? primaryColor : Colors.white,
+                onTap: onCameraSwitchButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(200),
-                    color: Colors.white,
+                    color: isFrontCamera ? primaryColor : Colors.white,
                   ),
                   padding: const EdgeInsets.all(12),
                   child: ImageIcon(
                     const AssetImage("assets/switch-camera.png"),
-                    color: primaryColor,
+                    color: isFrontCamera ? Colors.white : primaryColor,
                     size: 30,
                   ),
                 ),

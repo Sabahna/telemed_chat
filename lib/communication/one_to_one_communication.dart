@@ -7,9 +7,13 @@ import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
 
 class OneToOneCommunication {
-  OneToOneCommunication({required this.oneToOneCall});
+  OneToOneCommunication({required this.oneToOneCall, required this.globalKey});
 
   final OneToOneCall oneToOneCall;
+  /// When user join or create call, I have listened to pop widget when call is end.
+  /// In the same time, user can also be minimized while calling
+  ///
+  final GlobalKey globalKey;
 
   Future<void> createAndJoin(
     BuildContext context,
@@ -95,6 +99,7 @@ class OneToOneCommunication {
         builder: (context) => OneToOneMeetingScreen(
           oneToOneCall: oneToOneCall,
           justView: justView,
+          globalKey: globalKey,
           updateRoom: _updateRoomState,
         ),
       ),

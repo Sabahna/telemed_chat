@@ -28,10 +28,12 @@ class OneToOneRoomState {
     this.activePresenterId,
     this.room,
     this.currentOutputAudioDevice,
+    this.isFrontCamera = true,
   });
 
   Stream? videoStream;
   Stream? audioStream;
+  bool isFrontCamera;
   OutputAudioDevices? currentOutputAudioDevice;
 
   Room? room;
@@ -40,6 +42,7 @@ class OneToOneRoomState {
   OneToOneRoomState copyWith({
     Stream? videoStream,
     Stream? audioStream,
+    bool? isFrontCamera,
     OutputAudioDevices? currentOutputAudioDevice,
     Room? room,
     dynamic activePresenterId,
@@ -47,6 +50,7 @@ class OneToOneRoomState {
     return OneToOneRoomState(
       videoStream: videoStream ?? this.videoStream,
       audioStream: audioStream ?? this.audioStream,
+      isFrontCamera: isFrontCamera ?? this.isFrontCamera,
       currentOutputAudioDevice:
           currentOutputAudioDevice ?? this.currentOutputAudioDevice,
       room: room ?? this.room,
