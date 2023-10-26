@@ -23,6 +23,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.oneToOneCall,
     required this.justView,
     required this.globalKey,
+    required this.updateCallEndFunc,
     required this.updateRoom,
     Key? key,
   }) : super(key: key);
@@ -30,6 +31,9 @@ class OneToOneMeetingScreen extends StatefulWidget {
   final bool justView;
   final GlobalKey globalKey;
 
+  /// update method
+  ///
+  final void Function(void Function()? func) updateCallEndFunc;
   final void Function({
     OneToOneRoomState? roomState,
     bool reset,
@@ -202,10 +206,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                             OutputAudioDevices.speakerphone,
                         isFrontCamera: isFrontCamera,
                         // Called when Call End button is pressed
-                        onCallLeaveButtonPressed: () {
-                          widget.updateRoom(reset: true);
-                          meeting.end();
-                        },
+                        onCallLeaveButtonPressed: meetingCallEnd,
 
                         // Called when mic button is pressed
                         onMicButtonPressed: () async {
@@ -316,6 +317,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
           }
 
           updateDeviceList(roomMeeting);
+          widget.updateCallEndFunc(meetingCallEnd);
         },
       )
 
@@ -426,8 +428,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   Future<bool> _onWillPopScope() async {
-    widget.updateRoom(reset: true);
-    meeting.end();
+    meetingCallEnd();
     return true;
   }
 
@@ -440,6 +441,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
     // Holds available cameras info
     cameras = roomMeeting.getCameras();
+  }
+
+  /// meeting call end
+  ///
+  void meetingCallEnd() {
+    widget.updateRoom(reset: true);
+    meeting.end();
   }
 
   @override

@@ -16,6 +16,9 @@ class OneToOneCommunication {
   ///
   final GlobalKey globalKey;
 
+  /// You can call this method when calling, otherwise this may be null 😅
+  void Function()? callEnd;
+
   Future<bool?> createAndJoin(
     BuildContext context,
     FutureOr<void> Function(String meetingId) callBack,
@@ -84,6 +87,7 @@ class OneToOneCommunication {
   }) {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
+      callEnd = null;
       return;
     } else if (resetAudioStream) {
       oneToOneCall.roomState.audioStream = null;
@@ -106,6 +110,7 @@ class OneToOneCommunication {
           oneToOneCall: oneToOneCall,
           justView: justView,
           globalKey: globalKey,
+          updateCallEndFunc: _updateCallEndFunc,
           updateRoom: _updateRoomState,
         ),
       ),
@@ -114,5 +119,9 @@ class OneToOneCommunication {
     });
 
     return isMinimized;
+  }
+
+  void _updateCallEndFunc(void Function()? func) {
+    callEnd = func;
   }
 }
