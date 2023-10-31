@@ -95,15 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 oneToOneCommunication
                     .createAndJoin(
                   context: context,
-                  callBack: (meetingId) {
+                  onMeetingId: (meetingId) {
                     debugPrint(
                         "----------------------meetingId $meetingId----------------------");
                   },
-                  callDecline: () {
+                  onCallDecline: () {
                     debugPrint(
                         "----------------------decline call----------------------");
                   },
-                  callEndAction: () {
+                  onCallEndAction: () {
                     debugPrint(
                         "----------------------call end action , do sth----------------------");
                   },

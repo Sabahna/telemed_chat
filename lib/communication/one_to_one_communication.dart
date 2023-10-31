@@ -38,19 +38,19 @@ class OneToOneCommunication {
   /// true -> when screen is minimized while calling
   Future<bool?> createAndJoin({
     required BuildContext context,
-    required FutureOr<void> Function(String meetingId) callBack,
-    required FutureOr<void> Function() callDecline,
-    FutureOr<void> Function()? callEndAction,
+    required FutureOr<void> Function(String id) onMeetingId,
+    required FutureOr<void> Function() onCallDecline,
+    FutureOr<void> Function()? onCallEndAction,
   }) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
 
-      callBack(meetingID);
+      onMeetingId(meetingID);
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
-        _callDecline = callDecline;
-        _callEndCallback = callEndAction;
+        _callDecline = onCallDecline;
+        _callEndCallback = onCallEndAction;
 
         return await _navigateOneToOneMeeting(
           context,
