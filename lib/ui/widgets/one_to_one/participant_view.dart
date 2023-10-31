@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:telemed_chat/src/widgets/common/stats/call_stats.dart";
+import "package:telemed_chat/ui/widgets/common/stats/call_stats.dart";
 import "package:videosdk/videosdk.dart";
 
 class ParticipantView extends StatelessWidget {

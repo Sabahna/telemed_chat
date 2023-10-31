@@ -4,10 +4,10 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/callkit/callkit.dart";
-import "package:telemed_chat/src/widgets/common/joining/participant_limit_reached.dart";
-import "package:telemed_chat/src/widgets/common/joining/waiting_to_join.dart";
-import "package:telemed_chat/src/widgets/common/meeting_controls/meeting_actions.dart";
-import "package:telemed_chat/src/widgets/one_to_one/one_to_one_meeting_container.dart";
+import "package:telemed_chat/ui/widgets/common/joining/participant_limit_reached.dart";
+import "package:telemed_chat/ui/widgets/common/joining/waiting_to_join.dart";
+import "package:telemed_chat/ui/widgets/common/meeting_controls/meeting_actions.dart";
+import "package:telemed_chat/ui/widgets/one_to_one/one_to_one_meeting_container.dart";
 import "package:videosdk/videosdk.dart";
 
 enum OutputAudioDevices {

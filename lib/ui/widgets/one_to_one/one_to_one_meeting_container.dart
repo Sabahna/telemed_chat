@@ -1,6 +1,6 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:telemed_chat/src/widgets/one_to_one/participant_view.dart";
+import "package:telemed_chat/ui/widgets/one_to_one/participant_view.dart";
 import "package:videosdk/videosdk.dart";
 
 class OneToOneMeetingContainer extends StatefulWidget {

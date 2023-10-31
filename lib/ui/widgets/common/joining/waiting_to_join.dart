@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:lottie/lottie.dart";
-import "package:telemed_chat/src/utils/spacer.dart";
+import "package:telemed_chat/ui/utils/spacer.dart";
 
 class WaitingToJoin extends StatelessWidget {
   const WaitingToJoin({Key? key}) : super(key: key);

@@ -3,8 +3,8 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:telemed_chat/src/api/api.dart";
-import "package:telemed_chat/src/utils/spacer.dart";
-import "package:telemed_chat/src/widgets/common/app_bar/recording_indicator.dart";
+import "package:telemed_chat/ui/utils/spacer.dart";
+import "package:telemed_chat/ui/widgets/common/app_bar/recording_indicator.dart";
 import "package:videosdk/videosdk.dart";
 
 class MeetingAppBar extends StatefulWidget {

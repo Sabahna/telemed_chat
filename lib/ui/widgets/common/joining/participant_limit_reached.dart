@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:telemed_chat/src/utils/spacer.dart";
+import "package:telemed_chat/ui/utils/spacer.dart";
 import "package:videosdk/videosdk.dart";
 
 class ParticipantLimitReached extends StatelessWidget {

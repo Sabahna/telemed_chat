@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:telemed_chat/src/colors.dart";
-import "package:telemed_chat/src/utils/spacer.dart";
+import "package:telemed_chat/ui/utils/spacer.dart";
 import "package:touch_ripple_effect/touch_ripple_effect.dart";
 
 // Meeting ActionBar

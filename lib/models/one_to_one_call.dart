@@ -1,4 +1,4 @@
-import "package:telemed_chat/telemed_chat.dart";
+import "package:telemed_chat/ui/screens/one_to_one_meeting_screen.dart";
 import "package:videosdk/videosdk.dart";
 
 class OneToOneCall {

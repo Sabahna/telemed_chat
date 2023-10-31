@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:telemed_chat/src/colors.dart";
-import "package:telemed_chat/src/widgets/common/participant/participant_list_item.dart";
+import "package:telemed_chat/ui/widgets/common/participant/participant_list_item.dart";
 import "package:videosdk/videosdk.dart";
 
 class ParticipantList extends StatefulWidget {

@@ -3,8 +3,9 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
-import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
+import "package:telemed_chat/ui/screens/one_to_one_meeting_screen.dart";
+import "package:telemed_chat/ui/utils/toast.dart";
 
 class OneToOneCommunication {
   OneToOneCommunication({
