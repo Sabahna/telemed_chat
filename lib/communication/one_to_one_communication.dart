@@ -116,13 +116,15 @@ class OneToOneCommunication {
     unawaited(_callEndStreamSubscribe.cancel());
   }
 
-  void _updateRoomState({
+  Future<void> _updateRoomState({
     OneToOneRoomState? roomState,
     bool reset = false,
     bool resetAudioStream = false,
     bool resetVideoStream = false,
-  }) {
+  }) async {
     if (reset) {
+      _callEndCallback?.call();
+
       oneToOneCall.roomState = OneToOneRoomState();
       callEnd = null;
       _callDecline = null;
@@ -168,10 +170,7 @@ class OneToOneCommunication {
   }
 
   void _updateCallEndFunc(Future<void> Function() func) {
-    callEnd = () async {
-       unawaited(func());
-      await _callEndCallback?.call();
-    };
+    callEnd = func;
   }
 
   void _emitCallEndStream({required bool callEnd}) {
