@@ -744,10 +744,10 @@ packages:
     dependency: transitive
     description:
       name: videosdk
-      sha256: "78e2ed8534f452af6fa294afe8d4e562e8c1784afa6f10d593b43f2cf1e232ff"
+      sha256: "6379c3ff46d3fa0905c32d96edf082f28ecf5fed42a7190c7b0d90a272927298"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.1.7"
   videosdk_otel:
     dependency: transitive
     description:

@@ -169,7 +169,7 @@ class OneToOneCommunication {
 
   void _updateCallEndFunc(Future<void> Function() func) {
     callEnd = () async {
-      await func();
+       unawaited(func());
       await _callEndCallback?.call();
     };
   }
