@@ -40,7 +40,7 @@ class OneToOneCommunication {
     required BuildContext context,
     required FutureOr<void> Function(String meetingId) callBack,
     required FutureOr<void> Function() callDecline,
-    required FutureOr<void> Function()? callEndAction,
+    FutureOr<void> Function()? callEndAction,
   }) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
@@ -67,7 +67,11 @@ class OneToOneCommunication {
   }
 
   /// true -> when screen is minimized while calling
-  Future<bool?> join(String meetingId, BuildContext context) async {
+  Future<bool?> join({
+    required String meetingId,
+    required BuildContext context,
+    FutureOr<void> Function()? callEndAction,
+  }) async {
     if (meetingId.isEmpty) {
       showSnackBarMessage(
         message: "Please enter Valid Meeting ID",
@@ -81,6 +85,7 @@ class OneToOneCommunication {
     if (validMeeting) {
       if (context.mounted) {
         oneToOneCall.meetingId = meetingId;
+        _callEndCallback = callEndAction;
 
         return await _navigateOneToOneMeeting(
           context,

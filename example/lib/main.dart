@@ -123,7 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () {
-                oneToOneCommunication.join(meetingId, context);
+                oneToOneCommunication.join(
+                    meetingId: meetingId, context: context);
               },
               child: const Text("Join Meeting"),
             ),
