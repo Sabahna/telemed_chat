@@ -10,10 +10,7 @@ class OneToOneCommunication {
   OneToOneCommunication({
     required this.oneToOneCall,
     required this.globalKey,
-    FutureOr<void> Function()? callEndAction,
-  }) {
-    _callEndCallback = callEndAction;
-  }
+  });
 
   final OneToOneCall oneToOneCall;
 
@@ -39,11 +36,12 @@ class OneToOneCommunication {
   final callKitVoip = CallKitVOIP();
 
   /// true -> when screen is minimized while calling
-  Future<bool?> createAndJoin(
-    BuildContext context,
-    FutureOr<void> Function(String meetingId) callBack,
-    FutureOr<void> Function() callDecline,
-  ) async {
+  Future<bool?> createAndJoin({
+    required BuildContext context,
+    required FutureOr<void> Function(String meetingId) callBack,
+    required FutureOr<void> Function() callDecline,
+    required FutureOr<void> Function()? callEndAction,
+  }) async {
     try {
       final meetingID = await Api.I.createMeeting(oneToOneCall.token);
 
@@ -52,6 +50,7 @@ class OneToOneCommunication {
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
         _callDecline = callDecline;
+        _callEndCallback = callEndAction;
 
         return await _navigateOneToOneMeeting(
           context,
