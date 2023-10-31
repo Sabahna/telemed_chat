@@ -29,6 +29,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.emitCallEndStream,
     required this.updateRoom,
     this.callDecline,
+    this.callEndAction,
     Key? key,
   }) : super(key: key);
   final OneToOneCall oneToOneCall;
@@ -48,6 +49,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
   }) updateRoom;
 
   final FutureOr<void> Function()? callDecline;
+  final FutureOr<void> Function()? callEndAction;
 
   @override
   _OneToOneMeetingScreenState createState() => _OneToOneMeetingScreenState();
@@ -139,8 +141,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       // Join meeting
       await room.join();
     }
-
-    OneToOneEventState.I.room = room;
   }
 
   @override
@@ -218,7 +218,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                         // Called when Call End button is pressed
                         onCallLeaveButtonPressed: () async {
                           /// for just caller to notify call decline at the moment of not answering from receiver
-                          if (OneToOneEventState.I.room.participants.isEmpty) {
+                          if (meeting.participants.isEmpty) {
                             widget.callDecline?.call();
                           }
 
@@ -346,7 +346,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
           //     message: "Meeting left due to $errorMsg !!", context: context);
         }
 
-        // TODO(jack): Navigate to screen when room end
+        // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
         widget.emitCallEndStream(callEnd: true);
         widget.updateRoom(reset: true);
 
@@ -470,6 +470,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   Future<void> meetingCallEnd() async {
     widget.updateRoom(reset: true);
     meeting.end();
+    widget.callEndAction?.call();
     await widget.callKitVoip.callEnd();
   }
 

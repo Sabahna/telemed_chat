@@ -92,13 +92,23 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () {
-                oneToOneCommunication.createAndJoin(context, (meetingId) {
-                  debugPrint(
-                      "----------------------meetingId $meetingId----------------------");
-                }, () {
-                  debugPrint(
-                      "----------------------decline call----------------------");
-                }).then((value) {
+                oneToOneCommunication
+                    .createAndJoin(
+                  context: context,
+                  callBack: (meetingId) {
+                    debugPrint(
+                        "----------------------meetingId $meetingId----------------------");
+                  },
+                  callDecline: () {
+                    debugPrint(
+                        "----------------------decline call----------------------");
+                  },
+                  callEndAction: () {
+                    debugPrint(
+                        "----------------------call end action , do sth----------------------");
+                  },
+                )
+                    .then((value) {
                   debugPrint(
                       "----------------------isMinimized $value----------------------");
                 });

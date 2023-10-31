@@ -122,12 +122,10 @@ class OneToOneCommunication {
     bool resetVideoStream = false,
   }) async {
     if (reset) {
-      _callEndCallback?.call();
-
       oneToOneCall.roomState = OneToOneRoomState();
+
       callEnd = null;
       _callDecline = null;
-
       return;
     } else if (resetAudioStream) {
       oneToOneCall.roomState.audioStream = null;
@@ -158,6 +156,7 @@ class OneToOneCommunication {
           updateRoom: _updateRoomState,
           callKitVoip: callKitVoip,
           callDecline: _callDecline,
+          callEndAction: _callEndCallback,
         ),
       ),
     ).then((value) {

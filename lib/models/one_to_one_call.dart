@@ -70,6 +70,4 @@ class OneToOneEventState {
   static final OneToOneEventState I = OneToOneEventState._();
 
   bool isMinimized = false;
-
-  late Room room;
 }
