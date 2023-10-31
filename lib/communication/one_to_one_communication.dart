@@ -3,12 +3,17 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
-import "package:telemed_chat/src/callkit/callkit.dart";
 import "package:telemed_chat/src/utils/toast.dart";
 import "package:telemed_chat/telemed_chat.dart";
 
 class OneToOneCommunication {
-  OneToOneCommunication({required this.oneToOneCall, required this.globalKey});
+  OneToOneCommunication({
+    required this.oneToOneCall,
+    required this.globalKey,
+    FutureOr<void> Function()? callEndAction,
+  }) {
+    _callEndCallback = callEndAction;
+  }
 
   final OneToOneCall oneToOneCall;
 
@@ -26,6 +31,10 @@ class OneToOneCommunication {
   /// When caller ended at the moment of not answering from partner.
   ///
   FutureOr<void> Function()? _callDecline;
+
+  /// Call end callback action for client
+  ///
+  FutureOr<void> Function()? _callEndCallback;
 
   final callKitVoip = CallKitVOIP();
 
@@ -159,7 +168,10 @@ class OneToOneCommunication {
   }
 
   void _updateCallEndFunc(Future<void> Function() func) {
-    callEnd = func;
+    callEnd = () async {
+      await func();
+      await _callEndCallback?.call();
+    };
   }
 
   void _emitCallEndStream({required bool callEnd}) {
