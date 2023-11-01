@@ -149,8 +149,8 @@ class OneToOneCommunication {
     OneToOneEventState.I.isMinimized = false;
 
     late bool state;
-    await Navigator.push(
-      context,
+    await Navigator.of(context, rootNavigator: true)
+        .push(
       MaterialPageRoute(
         builder: (context) => OneToOneMeetingScreen(
           oneToOneCall: oneToOneCall,
@@ -164,7 +164,8 @@ class OneToOneCommunication {
           callEndCallback: _callEndCallback,
         ),
       ),
-    ).then((value) {
+    )
+        .then((value) {
       OneToOneEventState.I.isMinimized = value;
       state = value;
     });

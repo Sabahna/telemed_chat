@@ -123,19 +123,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         notificationInfo: widget.oneToOneCall.notificationInfo,
       );
 
-      // Register meeting events
-      unawaited(
-        registerEvents(),
-        // communication.registerEvents(
-        //   onRoomJoined: _roomJoined,
-        //   onRoomLeft: _roomLeft,
-        //   onStreamEnabled: _streamEnabled,
-        //   onStreamDisabled: _streamDisabled,
-        //   onPresenterChanged: _presenterChanged,
-        //   onParticipantLeft: _participantLeft,
-        // ),
-      );
-
       widget.updateRoom(
         roomState: widget.oneToOneCall.roomState.copyWith(
           currentOutputAudioDevice: currentOutputAudioDevice,
@@ -148,52 +135,65 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       // Join meeting
       await communication.room.join();
     }
+
+    // Register meeting events
+    unawaited(
+      // registerEvents(),
+      communication.registerEvents(
+        onRoomJoined: _roomJoined,
+        onRoomLeft: _roomLeft,
+        onStreamEnabled: _streamEnabled,
+        onStreamDisabled: _streamDisabled,
+        onPresenterChanged: _presenterChanged,
+        onParticipantLeft: _participantLeft,
+      ),
+    );
   }
 
-  Future<void> registerEvents() async {
-    final room = communication.room
+  /// -------------------------------- Room Events -------------------------
+  ///
 
-      // Called when joined in meeting
-      ..on(
-        Events.roomJoined,
-        () {
-          final room = communication.room;
-          if (room.participants.length > 1) {
-            setState(() {
-              _moreThan2Participants = true;
-            });
-          } else {
-            setState(() {
-              _joined = true;
-            });
-          }
+  void _roomJoined() {
+    if (mounted) {
+      final room = communication.room;
+      if (room.participants.length > 1) {
+        setState(() {
+          _moreThan2Participants = true;
+        });
+      } else {
+        setState(() {
+          _joined = true;
+        });
+      }
 
-          updateDeviceList(room);
-          widget.setCallEndFunc(meetingCallEnd);
-        },
-      )
+      updateDeviceList(room);
+      widget.setCallEndFunc(meetingCallEnd);
+    }
+  }
 
-      // Called when meeting is ended
-      ..on(Events.roomLeft, (errorMsg) {
-        if (errorMsg != null) {
-          // TODO(jack): reason meeting left
-          // showSnackBarMessage(
-          //     message: "Meeting left due to $errorMsg !!", context: context);
-        }
+  void _roomLeft(errorMsg) {
+    if (mounted) {
+      if (errorMsg != null) {
+        // TODO(jack): reason meeting left
+        // showSnackBarMessage(
+        //     message: "Meeting left due to $errorMsg !!", context: context);
+      }
+      debugPrint("----------------------room left----------------------");
 
-        // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
-        widget.listenCallEnd(status: true);
-        widget.updateRoom(reset: true);
+      // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
+      widget.listenCallEnd(status: true);
+      widget.updateRoom(reset: true);
 
-        if (!eventState.isMinimized) {
+      if (!eventState.isMinimized) {
+        if (mounted) {
           Navigator.of(widget.globalKey.currentContext!).pop(false);
         }
-      });
+      }
+    }
+  }
 
-    // Called when stream is enabled
-    room.localParticipant.on(Events.streamEnabled, (streamValue) {
-      final stream = streamValue as Stream;
-
+  void _streamEnabled(Stream stream) {
+    if (mounted) {
       if (stream.kind == "video") {
         setState(() {
           videoStream = stream;
@@ -212,12 +212,11 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
               widget.oneToOneCall.roomState.copyWith(audioStream: stream),
         );
       }
-    });
+    }
+  }
 
-    // Called when stream is disabled
-    room.localParticipant.on(Events.streamDisabled, (streamValue) {
-      final stream = streamValue as Stream;
-
+  void _streamDisabled(Stream stream) {
+    if (mounted) {
       if (!isSwitchingCamera) {
         if (stream.kind == "video" && videoStream?.id == stream.id) {
           setState(() {
@@ -236,135 +235,29 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
           );
         }
       }
-    });
-
-    // Called when presenter is changed
-    room
-      ..on(Events.presenterChanged, (activePresenterId) {
-        updateRemoteParticipantStream(activePresenterId);
-        widget.updateRoom(
-          roomState: widget.oneToOneCall.roomState.copyWith(
-            activePresenterId: activePresenterId,
-          ),
-        );
-      })
-      ..on(
-        Events.participantLeft,
-        (participant) {
-          if (_moreThan2Participants) {
-            if (communication.room.participants.length < 2) {
-              setState(() {
-                _joined = true;
-                _moreThan2Participants = false;
-              });
-            }
-          }
-        },
-      )
-
-      // Called when error
-      ..on(
-        Events.error,
-        (error) => {
-          // TODO(jack): show error
-          // showSnackBarMessage(
-          //     message: "${error['name']} :: ${error['message']}",
-          //     context: context),
-        },
-      );
-  }
-
-  /// -------------------------------- Room Events -------------------------
-  ///
-
-  void _roomJoined() {
-    final room = communication.room;
-    if (room.participants.length > 1) {
-      setState(() {
-        _moreThan2Participants = true;
-      });
-    } else {
-      setState(() {
-        _joined = true;
-      });
-    }
-
-    updateDeviceList(room);
-    widget.setCallEndFunc(meetingCallEnd);
-  }
-
-  void _roomLeft(errorMsg) {
-    if (errorMsg != null) {
-      // TODO(jack): reason meeting left
-      // showSnackBarMessage(
-      //     message: "Meeting left due to $errorMsg !!", context: context);
-    }
-
-    // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
-    widget.listenCallEnd(status: true);
-    widget.updateRoom(reset: true);
-
-    if (!eventState.isMinimized) {
-      Navigator.of(widget.globalKey.currentContext!).pop(false);
-    }
-  }
-
-  void _streamEnabled(Stream stream) {
-    if (stream.kind == "video") {
-      setState(() {
-        videoStream = stream;
-      });
-
-      widget.updateRoom(
-        roomState: widget.oneToOneCall.roomState.copyWith(videoStream: stream),
-      );
-    } else if (stream.kind == "audio") {
-      setState(() {
-        audioStream = stream;
-      });
-      widget.updateRoom(
-        roomState: widget.oneToOneCall.roomState.copyWith(audioStream: stream),
-      );
-    }
-  }
-
-  void _streamDisabled(Stream stream) {
-    if (!isSwitchingCamera) {
-      if (stream.kind == "video" && videoStream?.id == stream.id) {
-        setState(() {
-          videoStream = null;
-        });
-        widget.updateRoom(
-          resetVideoStream: true,
-        );
-      } else if (stream.kind == "audio" && audioStream?.id == stream.id) {
-        setState(() {
-          audioStream = null;
-        });
-
-        widget.updateRoom(
-          resetAudioStream: true,
-        );
-      }
     }
   }
 
   void _presenterChanged(activePresenterId) {
-    updateRemoteParticipantStream(activePresenterId);
-    widget.updateRoom(
-      roomState: widget.oneToOneCall.roomState.copyWith(
-        activePresenterId: activePresenterId,
-      ),
-    );
+    if (mounted) {
+      updateRemoteParticipantStream(activePresenterId);
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(
+          activePresenterId: activePresenterId,
+        ),
+      );
+    }
   }
 
   void _participantLeft() {
-    if (_moreThan2Participants) {
-      if (communication.room.participants.length < 2) {
-        setState(() {
-          _joined = true;
-          _moreThan2Participants = false;
-        });
+    if (mounted) {
+      if (_moreThan2Participants) {
+        if (communication.room.participants.length < 2) {
+          setState(() {
+            _joined = true;
+            _moreThan2Participants = false;
+          });
+        }
       }
     }
   }
@@ -379,9 +272,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     /// for just caller to notify call decline at the moment of not answering from receiver
     if (communication.room.participants.isEmpty) {
       widget.callDeclineCallback?.call();
+      await _roomEnd();
+    } else {
+      await meetingCallEnd();
     }
-
-    await meetingCallEnd();
   }
 
   // To be enable or disable of Mic
@@ -495,9 +389,15 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   /// meeting call end
   ///
   Future<void> meetingCallEnd() async {
+    widget.callEndCallback?.call();
+    await _roomEnd();
+  }
+
+  /// room end
+  ///
+  Future<void> _roomEnd() async {
     widget.updateRoom(reset: true);
     communication.room.end();
-    widget.callEndCallback?.call();
     await widget.callKitVoip.callEnd();
   }
 
