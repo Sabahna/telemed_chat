@@ -37,7 +37,7 @@ class Communication {
 
   Future<void> registerEvents({
     FutureOr<void> Function()? onRoomJoined,
-    FutureOr<void> Function(String error)? onRoomLeft,
+    FutureOr<void> Function(dynamic error)? onRoomLeft,
     FutureOr<void> Function(Stream stream)? onStreamEnabled,
     FutureOr<void> Function(Stream stream)? onStreamDisabled,
     FutureOr<void> Function(String id)? onPresenterChanged,
