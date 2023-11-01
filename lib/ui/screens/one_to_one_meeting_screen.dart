@@ -352,7 +352,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
   /// WillPopScope function
   Future<bool> _onWillPopScope() async {
-    Navigator.of(widget.globalKey.currentContext!).pop(true);
+    Navigator.of(context).pop(true);
     return false;
   }
 
@@ -434,8 +434,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          Navigator.of(widget.globalKey.currentContext!)
-                              .pop(true);
+                          Navigator.of(context).pop(true);
                         },
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
