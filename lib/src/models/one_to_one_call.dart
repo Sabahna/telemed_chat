@@ -54,19 +54,3 @@ class OneToOneRoomState {
     );
   }
 }
-
-/// There remains some events that listened once when starting call when minimized call screen while calling
-///
-class OneToOneEventState {
-  factory OneToOneEventState() {
-    return I;
-  }
-
-  OneToOneEventState._();
-
-  static final OneToOneEventState I = OneToOneEventState._();
-
-  bool isMinimized = false;
-
-  Room? room;
-}

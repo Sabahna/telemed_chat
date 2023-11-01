@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
+import "package:telemed_chat/communication/communication.dart";
 import "package:telemed_chat/src/api/api.dart";
 import "package:telemed_chat/telemed_chat.dart";
 import "package:telemed_chat/ui/utils/toast.dart";
@@ -127,7 +128,7 @@ class OneToOneCommunication {
   }) async {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
-      OneToOneEventState.I.room = null;
+      Communication.I.resetRoom();
       callEnd = null;
       _callDeclineCallback = null;
       _callEndCallback = null;
@@ -146,7 +147,6 @@ class OneToOneCommunication {
     bool justView = false,
   }) async {
     _callEndStream.add(false);
-    OneToOneEventState.I.isMinimized = false;
 
     late bool state;
     await Navigator.of(context, rootNavigator: true)
@@ -166,7 +166,6 @@ class OneToOneCommunication {
       ),
     )
         .then((value) {
-      OneToOneEventState.I.isMinimized = value;
       state = value;
     });
 

@@ -68,9 +68,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   bool isSwitchingCamera = false;
   bool isFrontCamera = true;
 
-  // Event state data
-  OneToOneEventState eventState = OneToOneEventState();
-
   @override
   void setState(fn) {
     if (mounted) {
@@ -98,8 +95,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     if (widget.justView) {
       currentOutputAudioDevice =
           widget.oneToOneCall.roomState.currentOutputAudioDevice!;
-      final room = eventState.room!;
-      communication.room = room;
       _joined = true;
       audioStream = widget.oneToOneCall.roomState.audioStream;
       videoStream = widget.oneToOneCall.roomState.videoStream;
@@ -108,7 +103,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         widget.oneToOneCall.roomState.activePresenterId,
       );
 
-      updateDeviceList(room);
+      updateDeviceList(communication.room);
     } else {
       if (widget.oneToOneCall.speakerEnabled) {
         currentOutputAudioDevice = OutputAudioDevices.speakerphone;
@@ -130,15 +125,12 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
         ),
       );
 
-      eventState.room = communication.room;
-
       // Join meeting
       await communication.room.join();
     }
 
-    // Register meeting events
+    // Register room events
     unawaited(
-      // registerEvents(),
       communication.registerEvents(
         onRoomJoined: _roomJoined,
         onRoomLeft: _roomLeft,
@@ -172,6 +164,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   void _roomLeft(errorMsg) {
+    debugPrint(
+      "----------------------room left outside----------------------",
+    );
+
     if (mounted) {
       if (errorMsg != null) {
         // TODO(jack): reason meeting left
@@ -184,16 +180,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       widget.listenCallEnd(status: true);
       widget.updateRoom(reset: true);
 
-      if (!eventState.isMinimized) {
-        if (mounted) {
-          Navigator.of(widget.globalKey.currentContext!).pop(false);
-        }
-      }
+      Navigator.of(widget.globalKey.currentContext!).pop(false);
     }
   }
 
   void _streamEnabled(Stream stream) {
     if (mounted) {
+      debugPrint("----------------------stream enabled----------------------");
       if (stream.kind == "video") {
         setState(() {
           videoStream = stream;
@@ -217,6 +210,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
   void _streamDisabled(Stream stream) {
     if (mounted) {
+      debugPrint("----------------------stream disable----------------------");
       if (!isSwitchingCamera) {
         if (stream.kind == "video" && videoStream?.id == stream.id) {
           setState(() {
@@ -251,6 +245,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
 
   void _participantLeft() {
     if (mounted) {
+      debugPrint(
+        "----------------------participant left ----------------------",
+      );
       if (_moreThan2Participants) {
         if (communication.room.participants.length < 2) {
           setState(() {
@@ -396,9 +393,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   /// room end
   ///
   Future<void> _roomEnd() async {
-    widget.updateRoom(reset: true);
     communication.room.end();
     await widget.callKitVoip.callEnd();
+    widget.updateRoom(reset: true);
+    debugPrint("----------------------room end method----------------------");
   }
 
   @override
