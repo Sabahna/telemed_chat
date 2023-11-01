@@ -50,7 +50,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
 
 class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   // Communication instance
-  late Communication communication;
+  Communication communication = Communication();
 
   // Meeting
   bool _joined = false;
