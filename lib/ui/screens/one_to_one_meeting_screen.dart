@@ -2,22 +2,15 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:telemed_chat/models/one_to_one_call.dart";
+import "package:telemed_chat/communication/communication.dart";
 import "package:telemed_chat/src/callkit/callkit.dart";
+import "package:telemed_chat/src/models/one_to_one_call.dart";
+import "package:telemed_chat/src/models/output_audio_device.dart";
 import "package:telemed_chat/ui/widgets/common/joining/participant_limit_reached.dart";
 import "package:telemed_chat/ui/widgets/common/joining/waiting_to_join.dart";
 import "package:telemed_chat/ui/widgets/common/meeting_controls/meeting_actions.dart";
 import "package:telemed_chat/ui/widgets/one_to_one/one_to_one_meeting_container.dart";
 import "package:videosdk/videosdk.dart";
-
-enum OutputAudioDevices {
-  speakerphone("Speakerphone"),
-  earpiece("Earpiece");
-
-  const OutputAudioDevices(this.name);
-
-  final String name;
-}
 
 class OneToOneMeetingScreen extends StatefulWidget {
   const OneToOneMeetingScreen({
@@ -25,22 +18,21 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.justView,
     required this.globalKey,
     required this.callKitVoip,
-    required this.updateCallEndFunc,
-    required this.emitCallEndStream,
+    required this.setCallEndFunc,
+    required this.listenCallEnd,
     required this.updateRoom,
-    this.callDecline,
-    this.callEndAction,
+    this.callDeclineCallback,
+    this.callEndCallback,
     Key? key,
   }) : super(key: key);
+
   final OneToOneCall oneToOneCall;
   final bool justView;
   final GlobalKey globalKey;
   final CallKitVOIP callKitVoip;
 
-  /// update method
-  ///
-  final void Function(Future<void> Function() func) updateCallEndFunc;
-  final void Function({required bool callEnd}) emitCallEndStream;
+  final void Function(Future<void> Function() func) setCallEndFunc;
+  final void Function({required bool status}) listenCallEnd;
   final void Function({
     OneToOneRoomState? roomState,
     bool reset,
@@ -48,16 +40,19 @@ class OneToOneMeetingScreen extends StatefulWidget {
     bool resetVideoStream,
   }) updateRoom;
 
-  final FutureOr<void> Function()? callDecline;
-  final FutureOr<void> Function()? callEndAction;
+  /// Callback functions for client
+  final FutureOr<void> Function()? callDeclineCallback;
+  final FutureOr<void> Function()? callEndCallback;
 
   @override
   _OneToOneMeetingScreenState createState() => _OneToOneMeetingScreenState();
 }
 
 class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
+  // Communication instance
+  late Communication communication;
+
   // Meeting
-  late Room meeting;
   bool _joined = false;
   bool _moreThan2Participants = false;
   List<MediaDeviceInfo> outputAudioDevices = [];
@@ -73,6 +68,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   bool isSwitchingCamera = false;
   bool isFrontCamera = true;
 
+  // Event state data
+  OneToOneEventState eventState = OneToOneEventState();
+
   @override
   void setState(fn) {
     if (mounted) {
@@ -87,6 +85,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     unawaited(initiative());
   }
 
+  /// Meeting screen initiative by creating room and join
+  ///
   Future<void> initiative() async {
     unawaited(
       SystemChrome.setPreferredOrientations([
@@ -95,13 +95,11 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       ]),
     );
 
-    late Room room;
-
     if (widget.justView) {
       currentOutputAudioDevice =
           widget.oneToOneCall.roomState.currentOutputAudioDevice!;
-      room = widget.oneToOneCall.roomState.room!;
-      meeting = room;
+      final room = eventState.room!;
+      communication.room = room;
       _joined = true;
       audioStream = widget.oneToOneCall.roomState.audioStream;
       videoStream = widget.oneToOneCall.roomState.videoStream;
@@ -115,32 +113,280 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
       if (widget.oneToOneCall.speakerEnabled) {
         currentOutputAudioDevice = OutputAudioDevices.speakerphone;
       }
+
       // Create instance of Room (Meeting)
-      room = VideoSDK.createRoom(
-        roomId: widget.oneToOneCall.meetingId,
+      communication.createRoom(
+        meetingId: widget.oneToOneCall.meetingId,
         token: widget.oneToOneCall.token,
-        displayName: widget.oneToOneCall.displayName,
+        name: widget.oneToOneCall.displayName,
         camEnabled: widget.oneToOneCall.camEnabled,
-        maxResolution: "hd",
-        multiStream: false,
-        defaultCameraIndex: 1,
-        notification: widget.oneToOneCall.notificationInfo,
+        notificationInfo: widget.oneToOneCall.notificationInfo,
       );
 
       // Register meeting events
-      registerMeetingEvents(room);
+      unawaited(
+        communication.registerEvents(
+          onRoomJoined: _roomJoined,
+          onRoomLeft: _roomLeft,
+          onStreamEnabled: _streamEnabled,
+          onStreamDisabled: _streamDisabled,
+          onPresenterChanged: _presenterChanged,
+          onParticipantLeft: _participantLeft,
+        ),
+      );
 
       widget.updateRoom(
         roomState: widget.oneToOneCall.roomState.copyWith(
-          room: room,
           currentOutputAudioDevice: currentOutputAudioDevice,
           isFrontCamera: isFrontCamera,
         ),
       );
 
+      eventState.room = communication.room;
+
       // Join meeting
-      await room.join();
+      await communication.room.join();
     }
+  }
+
+  /// -------------------------------- Room Events -------------------------
+  ///
+
+  void _roomJoined() {
+    final room = communication.room;
+    if (room.participants.length > 1) {
+      setState(() {
+        _moreThan2Participants = true;
+      });
+    } else {
+      setState(() {
+        _joined = true;
+      });
+    }
+
+    updateDeviceList(room);
+    widget.setCallEndFunc(meetingCallEnd);
+  }
+
+  void _roomLeft(errorMsg) {
+    if (errorMsg != null) {
+      // TODO(jack): reason meeting left
+      // showSnackBarMessage(
+      //     message: "Meeting left due to $errorMsg !!", context: context);
+    }
+
+    // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
+    widget.listenCallEnd(status: true);
+    widget.updateRoom(reset: true);
+
+    if (!eventState.isMinimized) {
+      Navigator.of(widget.globalKey.currentContext!).pop(false);
+    }
+  }
+
+  void _streamEnabled(Stream stream) {
+    if (stream.kind == "video") {
+      setState(() {
+        videoStream = stream;
+      });
+
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(videoStream: stream),
+      );
+    } else if (stream.kind == "audio") {
+      setState(() {
+        audioStream = stream;
+      });
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(audioStream: stream),
+      );
+    }
+  }
+
+  void _streamDisabled(Stream stream) {
+    if (!isSwitchingCamera) {
+      if (stream.kind == "video" && videoStream?.id == stream.id) {
+        setState(() {
+          videoStream = null;
+        });
+        widget.updateRoom(
+          resetVideoStream: true,
+        );
+      } else if (stream.kind == "audio" && audioStream?.id == stream.id) {
+        setState(() {
+          audioStream = null;
+        });
+
+        widget.updateRoom(
+          resetAudioStream: true,
+        );
+      }
+    }
+  }
+
+  void _presenterChanged(activePresenterId) {
+    updateRemoteParticipantStream(activePresenterId);
+    widget.updateRoom(
+      roomState: widget.oneToOneCall.roomState.copyWith(
+        activePresenterId: activePresenterId,
+      ),
+    );
+  }
+
+  void _participantLeft() {
+    if (_moreThan2Participants) {
+      if (communication.room.participants.length < 2) {
+        setState(() {
+          _joined = true;
+          _moreThan2Participants = false;
+        });
+      }
+    }
+  }
+
+  /// -----------------------------------------------------------------
+
+  /// -------------------------------- Call action controls -------------------------
+  ///
+
+  // Do when call end
+  Future<void> _onCallLeaveButtonPressed() async {
+    /// for just caller to notify call decline at the moment of not answering from receiver
+    if (communication.room.participants.isEmpty) {
+      widget.callDeclineCallback?.call();
+    }
+
+    await meetingCallEnd();
+  }
+
+  // To be enable or disable of Mic
+  Future<void> _onMicButtonPressed() async {
+    final room = communication.room;
+    if (audioStream != null) {
+      await room.muteMic();
+    } else {
+      await room.unmuteMic();
+    }
+  }
+
+  // To switch the front or back camera
+  Future<void> _onSwitchCameraButtonPressed() async {
+    final room = communication.room;
+
+    final MediaDeviceInfo newCam = cameras.firstWhere(
+      (camera) => camera.deviceId != room.selectedCamId,
+    );
+    isSwitchingCamera = true;
+    await room.changeCam(newCam.deviceId);
+    isSwitchingCamera = false;
+
+    setState(() {
+      isFrontCamera = !isFrontCamera;
+    });
+    widget.updateRoom(
+      roomState: widget.oneToOneCall.roomState.copyWith(
+        isFrontCamera: isFrontCamera,
+      ),
+    );
+  }
+
+  // To be enable or disable of Camera
+  Future<void> _onCameraButtonPressed() async {
+    final room = communication.room;
+
+    if (videoStream != null) {
+      await room.disableCam();
+    } else {
+      await room.enableCam();
+    }
+  }
+
+  // To open or close of speaker
+  Future<void> _onAudioSpeakerButtonPressed() async {
+    final room = communication.room;
+
+    if (currentOutputAudioDevice == OutputAudioDevices.speakerphone) {
+      final audioDevice = outputAudioDevices.firstWhere(
+        (element) => element.label == OutputAudioDevices.earpiece.name,
+      );
+      await room.switchAudioDevice(audioDevice);
+      setState(() {
+        currentOutputAudioDevice = OutputAudioDevices.earpiece;
+      });
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(
+          currentOutputAudioDevice: OutputAudioDevices.earpiece,
+        ),
+      );
+    } else {
+      final audioDevice = outputAudioDevices.firstWhere(
+        (element) => element.label == OutputAudioDevices.speakerphone.name,
+      );
+      await room.switchAudioDevice(audioDevice);
+      setState(() {
+        currentOutputAudioDevice = OutputAudioDevices.speakerphone;
+      });
+      widget.updateRoom(
+        roomState: widget.oneToOneCall.roomState.copyWith(
+          currentOutputAudioDevice: OutputAudioDevices.speakerphone,
+        ),
+      );
+    }
+  }
+
+  /// -----------------------------------------------------------------
+  ///
+
+  /// Updating remote participant stream
+  ///
+  void updateRemoteParticipantStream(dynamic activePresenterId) {
+    final Participant? activePresenterParticipant =
+        communication.room.participants[activePresenterId];
+
+    // Get Share Stream
+    final Stream? stream = activePresenterParticipant?.streams.values
+        .singleWhere((e) => e.kind == "share");
+
+    setState(() => remoteParticipantShareStream = stream);
+  }
+
+  /// WillPopScope function
+  Future<bool> _onWillPopScope() async {
+    Navigator.of(context).pop(true);
+    return false;
+  }
+
+  // update output audio devices
+  void updateDeviceList(Room roomMeeting) {
+    final deviceList = roomMeeting.getAudioOutputDevices();
+    setState(() {
+      outputAudioDevices.addAll(deviceList);
+    });
+
+    // Holds available cameras info
+    cameras = roomMeeting.getCameras();
+  }
+
+  /// meeting call end
+  ///
+  Future<void> meetingCallEnd() async {
+    widget.updateRoom(reset: true);
+    communication.room.end();
+    widget.callEndCallback?.call();
+    await widget.callKitVoip.callEnd();
+  }
+
+  @override
+  void dispose() {
+    unawaited(
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]),
+    );
+    super.dispose();
   }
 
   @override
@@ -163,7 +409,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: OneToOneMeetingContainer(
-                          meeting: meeting,
+                          meeting: communication.room,
                           isFrontCamera: isFrontCamera,
                         ),
                       ),
@@ -215,92 +461,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                         isAudioSpeakerEnabled: currentOutputAudioDevice ==
                             OutputAudioDevices.speakerphone,
                         isFrontCamera: isFrontCamera,
-                        // Called when Call End button is pressed
-                        onCallLeaveButtonPressed: () async {
-                          /// for just caller to notify call decline at the moment of not answering from receiver
-                          if (meeting.participants.isEmpty) {
-                            widget.callDecline?.call();
-                          }
-
-                          await meetingCallEnd();
-                        },
-
-                        // Called when mic button is pressed
-                        onMicButtonPressed: () async {
-                          if (audioStream != null) {
-                            await meeting.muteMic();
-                          } else {
-                            await meeting.unmuteMic();
-                          }
-                        },
-
-                        // Called when camera button is pressed
-                        onCameraButtonPressed: () async {
-                          if (videoStream != null) {
-                            await meeting.disableCam();
-                          } else {
-                            await meeting.enableCam();
-                          }
-                        },
-
-                        // Called when camera switch button is pressed
-                        onCameraSwitchButtonPressed: () async {
-                          final MediaDeviceInfo newCam = cameras.firstWhere(
-                            (camera) =>
-                                camera.deviceId != meeting.selectedCamId,
-                          );
-                          isSwitchingCamera = true;
-                          await meeting.changeCam(newCam.deviceId);
-                          isSwitchingCamera = false;
-
-                          setState(() {
-                            isFrontCamera = !isFrontCamera;
-                          });
-                          widget.updateRoom(
-                            roomState: widget.oneToOneCall.roomState.copyWith(
-                              isFrontCamera: isFrontCamera,
-                            ),
-                          );
-                        },
-
-                        onAudioSpeakerButtonPressed: () async {
-                          if (currentOutputAudioDevice ==
-                              OutputAudioDevices.speakerphone) {
-                            final audioDevice = outputAudioDevices.firstWhere(
-                              (element) =>
-                                  element.label ==
-                                  OutputAudioDevices.earpiece.name,
-                            );
-                            await meeting.switchAudioDevice(audioDevice);
-                            setState(() {
-                              currentOutputAudioDevice =
-                                  OutputAudioDevices.earpiece;
-                            });
-                            widget.updateRoom(
-                              roomState: widget.oneToOneCall.roomState.copyWith(
-                                currentOutputAudioDevice:
-                                    OutputAudioDevices.earpiece,
-                              ),
-                            );
-                          } else {
-                            final audioDevice = outputAudioDevices.firstWhere(
-                              (element) =>
-                                  element.label ==
-                                  OutputAudioDevices.speakerphone.name,
-                            );
-                            await meeting.switchAudioDevice(audioDevice);
-                            setState(() {
-                              currentOutputAudioDevice =
-                                  OutputAudioDevices.speakerphone;
-                            });
-                            widget.updateRoom(
-                              roomState: widget.oneToOneCall.roomState.copyWith(
-                                currentOutputAudioDevice:
-                                    OutputAudioDevices.speakerphone,
-                              ),
-                            );
-                          }
-                        },
+                        onCallLeaveButtonPressed: _onCallLeaveButtonPressed,
+                        onMicButtonPressed: _onMicButtonPressed,
+                        onCameraButtonPressed: _onCameraButtonPressed,
+                        onCameraSwitchButtonPressed:
+                            _onSwitchCameraButtonPressed,
+                        onAudioSpeakerButtonPressed:
+                            _onAudioSpeakerButtonPressed,
                       ),
                     ),
                   ),
@@ -309,181 +476,9 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
             )
           : _moreThan2Participants
               ? ParticipantLimitReached(
-                  meeting: meeting,
+                  meeting: communication.room,
                 )
               : const WaitingToJoin(),
     );
-  }
-
-  void registerMeetingEvents(Room roomMeeting) {
-    // Called when joined in meeting
-    roomMeeting
-      ..on(
-        Events.roomJoined,
-        () async {
-          if (roomMeeting.participants.length > 1) {
-            setState(() {
-              meeting = roomMeeting;
-              _moreThan2Participants = true;
-            });
-          } else {
-            setState(() {
-              meeting = roomMeeting;
-              _joined = true;
-            });
-          }
-
-          updateDeviceList(roomMeeting);
-          widget.updateCallEndFunc(meetingCallEnd);
-        },
-      )
-
-      // Called when meeting is ended
-      ..on(Events.roomLeft, (errorMsg) async {
-        if (errorMsg != null) {
-          // TODO(jack): reason meeting left
-          // showSnackBarMessage(
-          //     message: "Meeting left due to $errorMsg !!", context: context);
-        }
-
-        // TODO(jack): This event called whoever left from the meeting including yourself. This may take effect in group meeting but still ok 😅. Tips:=> Events.participantLeft
-        widget.emitCallEndStream(callEnd: true);
-        widget.updateRoom(reset: true);
-
-        if (!OneToOneEventState.I.isMinimized) {
-          Navigator.of(widget.globalKey.currentContext!).pop(false);
-        }
-      });
-
-    // Called when stream is enabled
-    roomMeeting.localParticipant.on(Events.streamEnabled, (stream) {
-      final tempStream = stream as Stream;
-      if (stream.kind == "video") {
-        setState(() {
-          videoStream = tempStream;
-        });
-
-        widget.updateRoom(
-          roomState:
-              widget.oneToOneCall.roomState.copyWith(videoStream: tempStream),
-        );
-      } else if (stream.kind == "audio") {
-        setState(() {
-          audioStream = tempStream;
-        });
-        widget.updateRoom(
-          roomState:
-              widget.oneToOneCall.roomState.copyWith(audioStream: tempStream),
-        );
-      }
-    });
-
-    // Called when stream is disabled
-    roomMeeting.localParticipant.on(Events.streamDisabled, (stream) {
-      final tempStream = stream as Stream;
-
-      if (!isSwitchingCamera) {
-        if (stream.kind == "video" && videoStream?.id == stream.id) {
-          setState(() {
-            videoStream = null;
-          });
-          widget.updateRoom(
-            resetVideoStream: true,
-          );
-        } else if (stream.kind == "audio" && audioStream?.id == stream.id) {
-          setState(() {
-            audioStream = null;
-          });
-
-          widget.updateRoom(
-            resetAudioStream: true,
-          );
-        }
-      }
-    });
-
-    // Called when presenter is changed
-    roomMeeting
-      ..on(Events.presenterChanged, (activePresenterId) {
-        updateRemoteParticipantStream(activePresenterId);
-        widget.updateRoom(
-          roomState: widget.oneToOneCall.roomState.copyWith(
-            activePresenterId: activePresenterId,
-          ),
-        );
-      })
-      ..on(
-        Events.participantLeft,
-        (participant) async => {
-          if (_moreThan2Participants)
-            {
-              if (roomMeeting.participants.length < 2)
-                {
-                  setState(() {
-                    _joined = true;
-                    _moreThan2Participants = false;
-                  }),
-                },
-            },
-        },
-      )
-      ..on(
-        Events.error,
-        (error) => {
-          // TODO(jack): show error
-          // showSnackBarMessage(
-          //     message: "${error['name']} :: ${error['message']}",
-          //     context: context),
-        },
-      );
-  }
-
-  void updateRemoteParticipantStream(dynamic activePresenterId) {
-    final Participant? activePresenterParticipant =
-        meeting.participants[activePresenterId];
-
-    // Get Share Stream
-    final Stream? stream = activePresenterParticipant?.streams.values
-        .singleWhere((e) => e.kind == "share");
-
-    setState(() => remoteParticipantShareStream = stream);
-  }
-
-  Future<bool> _onWillPopScope() async {
-    Navigator.of(context).pop(true);
-    return false;
-  }
-
-  // update output audio devices
-  void updateDeviceList(Room roomMeeting) {
-    final deviceList = roomMeeting.getAudioOutputDevices();
-    setState(() {
-      outputAudioDevices.addAll(deviceList);
-    });
-
-    // Holds available cameras info
-    cameras = roomMeeting.getCameras();
-  }
-
-  /// meeting call end
-  ///
-  Future<void> meetingCallEnd() async {
-    widget.updateRoom(reset: true);
-    meeting.end();
-    widget.callEndAction?.call();
-    await widget.callKitVoip.callEnd();
-  }
-
-  @override
-  void dispose() {
-    unawaited(
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]),
-    );
-    super.dispose();
   }
 }

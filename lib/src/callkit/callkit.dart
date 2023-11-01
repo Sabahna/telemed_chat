@@ -3,7 +3,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_callkit_incoming/entities/entities.dart";
 import "package:flutter_callkit_incoming/flutter_callkit_incoming.dart";
-import "package:telemed_chat/models/callkit_abstract.dart";
+import "package:telemed_chat/src/models/callkit_abstract.dart";
 import "package:uuid/uuid.dart";
 
 class CallKitVOIP extends CallKitVOIPAbstract {

@@ -1,10 +1,8 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
-import "package:telemed_chat/models/one_to_one_call.dart";
 import "package:telemed_chat/src/api/api.dart";
 import "package:telemed_chat/telemed_chat.dart";
-import "package:telemed_chat/ui/screens/one_to_one_meeting_screen.dart";
 import "package:telemed_chat/ui/utils/toast.dart";
 
 class OneToOneCommunication {
@@ -28,7 +26,7 @@ class OneToOneCommunication {
 
   /// When caller ended at the moment of not answering from partner.
   ///
-  FutureOr<void> Function()? _callDecline;
+  FutureOr<void> Function()? _callDeclineCallback;
 
   /// Call end callback action for client
   ///
@@ -50,7 +48,7 @@ class OneToOneCommunication {
 
       if (context.mounted) {
         oneToOneCall.meetingId = meetingID;
-        _callDecline = onCallDecline;
+        _callDeclineCallback = onCallDecline;
         _callEndCallback = onCallEndAction;
 
         return await _navigateOneToOneMeeting(
@@ -129,9 +127,10 @@ class OneToOneCommunication {
   }) async {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
-
+      OneToOneEventState.I.room = null;
       callEnd = null;
-      _callDecline = null;
+      _callDeclineCallback = null;
+      _callEndCallback = null;
       return;
     } else if (resetAudioStream) {
       oneToOneCall.roomState.audioStream = null;
@@ -157,12 +156,12 @@ class OneToOneCommunication {
           oneToOneCall: oneToOneCall,
           justView: justView,
           globalKey: globalKey,
-          updateCallEndFunc: _updateCallEndFunc,
-          emitCallEndStream: _emitCallEndStream,
+          setCallEndFunc: _setCallEndFunc,
+          listenCallEnd: _listenCallEnd,
           updateRoom: _updateRoomState,
           callKitVoip: callKitVoip,
-          callDecline: _callDecline,
-          callEndAction: _callEndCallback,
+          callDeclineCallback: _callDeclineCallback,
+          callEndCallback: _callEndCallback,
         ),
       ),
     ).then((value) {
@@ -173,11 +172,11 @@ class OneToOneCommunication {
     return state;
   }
 
-  void _updateCallEndFunc(Future<void> Function() func) {
+  void _setCallEndFunc(Future<void> Function() func) {
     callEnd = func;
   }
 
-  void _emitCallEndStream({required bool callEnd}) {
-    _callEndStream.add(callEnd);
+  void _listenCallEnd({required bool status}) {
+    _callEndStream.add(status);
   }
 }

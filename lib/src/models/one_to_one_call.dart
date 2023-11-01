@@ -1,4 +1,4 @@
-import "package:telemed_chat/ui/screens/one_to_one_meeting_screen.dart";
+import "package:telemed_chat/src/models/output_audio_device.dart";
 import "package:videosdk/videosdk.dart";
 
 class OneToOneCall {
@@ -26,7 +26,6 @@ class OneToOneRoomState {
     this.audioStream,
     this.videoStream,
     this.activePresenterId,
-    this.room,
     this.currentOutputAudioDevice,
     this.isFrontCamera = true,
   });
@@ -36,7 +35,6 @@ class OneToOneRoomState {
   bool isFrontCamera;
   OutputAudioDevices? currentOutputAudioDevice;
 
-  Room? room;
   dynamic activePresenterId;
 
   OneToOneRoomState copyWith({
@@ -44,7 +42,6 @@ class OneToOneRoomState {
     Stream? audioStream,
     bool? isFrontCamera,
     OutputAudioDevices? currentOutputAudioDevice,
-    Room? room,
     dynamic activePresenterId,
   }) {
     return OneToOneRoomState(
@@ -53,13 +50,13 @@ class OneToOneRoomState {
       isFrontCamera: isFrontCamera ?? this.isFrontCamera,
       currentOutputAudioDevice:
           currentOutputAudioDevice ?? this.currentOutputAudioDevice,
-      room: room ?? this.room,
       activePresenterId: activePresenterId ?? this.activePresenterId,
     );
   }
 }
 
-/// Singleton state for checking isMinimized or not
+/// There remains some events that listened once when starting call when minimized call screen while calling
+///
 class OneToOneEventState {
   factory OneToOneEventState() {
     return I;
@@ -70,4 +67,6 @@ class OneToOneEventState {
   static final OneToOneEventState I = OneToOneEventState._();
 
   bool isMinimized = false;
+
+  Room? room;
 }
