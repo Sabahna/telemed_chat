@@ -130,15 +130,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     }
 
     // Register room events
-    unawaited(
-      communication.registerEvents(
-        onRoomJoined: _roomJoined,
-        onRoomLeft: _roomLeft,
-        onStreamEnabled: _streamEnabled,
-        onStreamDisabled: _streamDisabled,
-        onPresenterChanged: _presenterChanged,
-        onParticipantLeft: _participantLeft,
-      ),
+    await communication.registerEvents(
+      onRoomJoined: _roomJoined,
+      onRoomLeft: _roomLeft,
+      onStreamEnabled: _streamEnabled,
+      onStreamDisabled: _streamDisabled,
+      onPresenterChanged: _presenterChanged,
+      onParticipantLeft: _participantLeft,
     );
   }
 

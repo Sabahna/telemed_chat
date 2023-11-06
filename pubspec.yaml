@@ -13,7 +13,6 @@ dependencies:
   flutter_callkit_incoming: ^2.0.0+2
   http: ^1.1.0
   lottie: ^2.7.0
-  mqtt_client: ^10.0.0
   touch_ripple_effect: ^2.3.0
   uuid: ^4.1.0
   videosdk: ^1.1.7

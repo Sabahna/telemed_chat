@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:telemed_chat/communication/one_to_one_communication.dart';
-import 'package:telemed_chat/src/models/one_to_one_call.dart';
 import 'package:telemed_chat/telemed_chat.dart';
 
 void main() {
