@@ -133,8 +133,9 @@ class CallKitVOIP extends CallKitVOIPAbstract {
   @override
   Future<void> listenerEventBackground({
     required FutureOr<void> Function() onDecline,
+    required FutureOr<void> Function()? onJoin,
   }) async {
-    await listenerEvent(onJoin: () {}, onDecline: onDecline);
+    await listenerEvent(onJoin: onJoin ?? () {}, onDecline: onDecline);
   }
 
   @override
