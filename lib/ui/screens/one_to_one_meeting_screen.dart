@@ -496,6 +496,26 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
                       crossFadeState: !fullScreen
                           ? CrossFadeState.showFirst
                           : CrossFadeState.showSecond,
+                      firstCurve: Curves.elasticOut,
+                      secondCurve: Curves.easeIn,
+                      layoutBuilder:
+                          (topChild, bottomChildKey, bottomChild, topChildKey) {
+                        return Stack(
+                          children: <Widget>[
+                            Positioned(
+                              key: bottomChildKey,
+                              left: 0.0,
+                              top: 0.0,
+                              right: 0.0,
+                              child: bottomChild,
+                            ),
+                            Positioned(
+                              key: topChildKey,
+                              child: topChild,
+                            ),
+                          ],
+                        );
+                      },
                       secondChild: const SizedBox.shrink(),
                       firstChild: MeetingActionControl(
                         name: widget.oneToOneCall.displayName,

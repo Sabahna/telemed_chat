@@ -1,8 +1,5 @@
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
-import "package:telemed_chat/src/colors.dart";
-import "package:telemed_chat/ui/utils/spacer.dart";
-import "package:touch_ripple_effect/touch_ripple_effect.dart";
 
 // Meeting ActionBar
 class MeetingActionControl extends StatelessWidget {
@@ -44,32 +41,25 @@ class MeetingActionControl extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TouchRippleEffect(
-            borderRadius: BorderRadius.circular(0),
-            rippleColor: Colors.white.withOpacity(0),
-            onTap: () {},
-            child: Column(
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+          Column(
+            children: [
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+            ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // Mic Control
-              TouchRippleEffect(
-                borderRadius: BorderRadius.circular(200),
-                rippleColor: isMicEnabled ? primaryColor : Colors.white,
+              GestureDetector(
                 onTap: onMicButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
@@ -86,9 +76,7 @@ class MeetingActionControl extends StatelessWidget {
               ),
 
               // Camera Control
-              TouchRippleEffect(
-                borderRadius: BorderRadius.circular(200),
-                rippleColor: primaryColor,
+              GestureDetector(
                 onTap: onCameraButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
@@ -111,10 +99,7 @@ class MeetingActionControl extends StatelessWidget {
               ),
 
               // Audio output Control
-              TouchRippleEffect(
-                borderRadius: BorderRadius.circular(200),
-                rippleColor:
-                    isAudioSpeakerEnabled ? primaryColor : Colors.white,
+              GestureDetector(
                 onTap: onAudioSpeakerButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
@@ -133,9 +118,7 @@ class MeetingActionControl extends StatelessWidget {
               ),
 
               // Camera Reverse
-              TouchRippleEffect(
-                borderRadius: BorderRadius.circular(200),
-                rippleColor: isFrontCamera ? primaryColor : Colors.white,
+              GestureDetector(
                 onTap: onCameraSwitchButtonPressed,
                 child: Container(
                   decoration: BoxDecoration(
@@ -155,9 +138,7 @@ class MeetingActionControl extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          TouchRippleEffect(
-            borderRadius: BorderRadius.circular(0),
-            rippleColor: Colors.white.withOpacity(0),
+          GestureDetector(
             onTap: onCallLeaveButtonPressed,
             child: Container(
               decoration: BoxDecoration(
@@ -175,47 +156,6 @@ class MeetingActionControl extends StatelessWidget {
           ),
           const SizedBox(
             height: 40,
-          ),
-        ],
-      ),
-    );
-  }
-
-  PopupMenuItem<dynamic> _buildMeetingPoupItem(
-    String value,
-    String title,
-    String? description,
-    Widget leadingIcon,
-  ) {
-    return PopupMenuItem(
-      value: value,
-      padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-      child: Row(
-        children: [
-          leadingIcon,
-          const HorizontalSpacer(200),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-              if (description != null) const VerticalSpacer(4),
-              if (description != null)
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 200,
-                    fontWeight: FontWeight.w500,
-                    color: black400,
-                  ),
-                ),
-            ],
           ),
         ],
       ),
