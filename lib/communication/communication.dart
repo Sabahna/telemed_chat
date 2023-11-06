@@ -15,9 +15,7 @@ class Communication {
 
   Room get room => _room!;
 
-  void resetRoom() {
-    _room = null;
-  }
+
 
   /// Events methods
   /// Events listen once while calling and function references miss when minimized call screen

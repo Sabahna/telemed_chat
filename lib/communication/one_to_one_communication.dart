@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
-import "package:telemed_chat/communication/communication.dart";
 import "package:telemed_chat/src/api/api.dart";
 import "package:telemed_chat/telemed_chat.dart";
 import "package:telemed_chat/ui/utils/toast.dart";
@@ -129,7 +128,6 @@ class OneToOneCommunication {
   }) async {
     if (reset) {
       oneToOneCall.roomState = OneToOneRoomState();
-      Communication.I.resetRoom();
       callEnd = null;
       _callDeclineCallback = null;
       _callEndCallback = null;
