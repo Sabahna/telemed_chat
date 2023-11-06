@@ -89,6 +89,7 @@ class OneToOneCommunication {
 
         return await _navigateOneToOneMeeting(
           context,
+          isCaller: false,
         );
       }
     } else {
@@ -145,6 +146,7 @@ class OneToOneCommunication {
   Future<bool> _navigateOneToOneMeeting(
     BuildContext context, {
     bool justView = false,
+    bool isCaller = true,
   }) async {
     _callEndStream.add(false);
 
@@ -155,6 +157,7 @@ class OneToOneCommunication {
         builder: (context) => OneToOneMeetingScreen(
           oneToOneCall: oneToOneCall,
           justView: justView,
+          isCaller: isCaller,
           globalKey: globalKey,
           setCallEndFunc: _setCallEndFunc,
           listenCallEnd: _listenCallEnd,

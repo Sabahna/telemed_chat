@@ -3,7 +3,11 @@ import "package:lottie/lottie.dart";
 import "package:telemed_chat/ui/utils/spacer.dart";
 
 class WaitingToJoin extends StatelessWidget {
-  const WaitingToJoin({Key? key}) : super(key: key);
+  const WaitingToJoin({required this.title, this.color, Key? key})
+      : super(key: key);
+
+  final String title;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +19,11 @@ class WaitingToJoin extends StatelessWidget {
           children: [
             Lottie.asset("assets/calling_lottie.json", width: 100),
             const VerticalSpacer(20),
-            const Text(
-              "Calling...",
+            Text(
+              title,
               style: TextStyle(
                 fontSize: 25,
-                color: Color(0xff088395),
+                color: color ?? const Color(0xff088395),
                 fontWeight: FontWeight.w500,
               ),
             ),

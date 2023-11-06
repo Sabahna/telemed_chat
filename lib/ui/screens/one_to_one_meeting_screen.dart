@@ -21,6 +21,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
     required this.setCallEndFunc,
     required this.listenCallEnd,
     required this.updateRoom,
+    this.isCaller = true,
     this.callDeclineCallback,
     this.callEndCallback,
     Key? key,
@@ -28,6 +29,7 @@ class OneToOneMeetingScreen extends StatefulWidget {
 
   final OneToOneCall oneToOneCall;
   final bool justView;
+  final bool isCaller;
   final GlobalKey globalKey;
   final CallKitVOIP callKitVoip;
 
@@ -58,6 +60,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   List<MediaDeviceInfo> outputAudioDevices = [];
   List<MediaDeviceInfo> cameras = [];
 
+  // joining screen data
+  String? joiningScreenTitle;
+  Color? titleColor;
+
   // Streams
   Stream? videoStream;
   Stream? audioStream;
@@ -79,6 +85,15 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() {
+        if (widget.isCaller) {
+          joiningScreenTitle = "Calling ...";
+        } else {
+          joiningScreenTitle = "Joining ...";
+        }
+      });
+    });
     unawaited(initiative());
   }
 
@@ -265,6 +280,13 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   // Do when call end
   Future<void> _onCallLeaveButtonPressed() async {
     /// for just caller to notify call decline at the moment of not answering from receiver
+
+    setState(() {
+      joiningScreenTitle = "Leaving";
+      titleColor = Colors.red;
+      _joined = false;
+    });
+
     if (communication.room.participants.isEmpty) {
       widget.callDeclineCallback?.call();
       await _roomEnd();
@@ -499,7 +521,10 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
               ? ParticipantLimitReached(
                   meeting: communication.room,
                 )
-              : const WaitingToJoin(),
+              : WaitingToJoin(
+                  title: joiningScreenTitle ?? "",
+                  color: titleColor,
+                ),
     );
   }
 }
