@@ -416,6 +416,7 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     communication.room.end();
     await widget.callKitVoip.callEnd();
     widget.updateRoom(reset: true);
+    widget.listenCallEnd(status: true);
     debugPrint("----------------------room end method----------------------");
   }
 
