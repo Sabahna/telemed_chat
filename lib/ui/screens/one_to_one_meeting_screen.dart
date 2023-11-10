@@ -257,6 +257,8 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
   }
 
   void _participantLeft() {
+    // TODO(jackwill): this will call multiple times
+    widget.listenCallEnd(status: true);
     if (mounted) {
       debugPrint(
         "----------------------participant left ----------------------",
@@ -416,7 +418,6 @@ class _OneToOneMeetingScreenState extends State<OneToOneMeetingScreen> {
     communication.room.end();
     await widget.callKitVoip.callEnd();
     widget.updateRoom(reset: true);
-    widget.listenCallEnd(status: true);
     debugPrint("----------------------room end method----------------------");
   }
 
